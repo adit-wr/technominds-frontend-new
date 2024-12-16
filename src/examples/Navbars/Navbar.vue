@@ -1,16 +1,16 @@
 <!-- Navbar.vue -->
 <script setup>
 import { computed, ref, watch } from "vue";
-import { useStore } from "vuex";
+import { useUIStore } from "@/store/uiStore";
 import { useRoute, useRouter } from "vue-router";
 import Breadcrumbs from "../Breadcrumbs.vue";
 
 // Refs and state management
 const showRoleDropdown = ref(false);
 const selectedRole = ref(localStorage.getItem("userRole") || null);
-const store = useStore();
+const uiStore = useUIStore();
 const router = useRouter();
-const isRTL = computed(() => store.state.isRTL);
+const isRTL = computed(() => uiStore.isRTL);
 
 // Handle route and breadcrumb
 const route = useRoute();
@@ -34,7 +34,7 @@ const handleRoleSelection = (role) => {
     router.push({ name: role, params: { component: "items" } });
   } else {
     alert("Kamu tidak mendapatkan akses menuju role ini...");
-    router.push({ name: "Signin" });
+    router.push({ name: "Login" });
     showRoleDropdown.value = false;
   }
 };
@@ -61,7 +61,7 @@ watch(selectedRole, (newRole) => {
               <li><a class="dropdown-item" @click="handleRoleSelection('ph_operator')">PH Operator</a></li>
             </ul>
             <ul>
-              <li><a href="/signin">Logout</a></li>
+              <li><a href="/login">Logout</a></li>
             </ul>
           </li>
         </ul>

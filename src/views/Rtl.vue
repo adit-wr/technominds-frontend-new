@@ -1,6 +1,8 @@
 <script setup>
 import { onBeforeMount, onBeforeUnmount } from "vue";
-import { useStore } from "vuex";
+import { storeToRefs } from "pinia";
+import { useUIStore } from "@/stores/uiStore";
+
 import MiniStatisticsCard from "@/examples/Cards/MiniStatisticsCard.vue";
 import DeveloperCard from "./components/DeveloperCard.vue";
 import RocketCard from "./components/RocketCard.vue";
@@ -22,21 +24,25 @@ import team2 from "@/assets/img/team-2.jpg";
 import team3 from "@/assets/img/team-3.jpg";
 import team4 from "@/assets/img/team-4.jpg";
 
-const store = useStore();
+// Menggunakan Pinia Store
+const uiStore = useUIStore();
+const { isRTL } = storeToRefs(uiStore);
 
 onBeforeMount(() => {
-  store.state.isRTL = true;
+  uiStore.enableRTL();
   document.querySelector("html").setAttribute("lang", "ar");
   document.querySelector("html").setAttribute("dir", "rtl");
   document.querySelector("#app").classList.add("rtl");
 });
+
 onBeforeUnmount(() => {
-  store.state.isRTL = false;
+  uiStore.disableRTL();
   document.querySelector("html").removeAttribute("lang");
   document.querySelector("html").removeAttribute("dir");
   document.querySelector("#app").classList.remove("rtl");
 });
 </script>
+
 <template>
   <div class="py-4 container-fluid">
     <div class="row">
@@ -107,19 +113,9 @@ onBeforeUnmount(() => {
           id="chart-line-rtl"
           title="نظرة عامة على المبيعات"
           description="<i class='fa fa-arrow-up text-success'></i>
-      <span class='font-weight-bold'>4% أكثر</span> في عام 2021"
+          <span class='font-weight-bold'>4% أكثر</span> في عام 2021"
           :chart="{
-            labels: [
-              'Apr',
-              'May',
-              'Jun',
-              'Jul',
-              'Aug',
-              'Sep',
-              'Oct',
-              'Nov',
-              'Dec',
-            ],
+            labels: ['Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
             datasets: [
               {
                 label: 'Mobile Apps',
@@ -135,105 +131,22 @@ onBeforeUnmount(() => {
         <project-card
           title="المشاريع"
           description='<i class="fa fa-check text-info" aria-hidden="true"></i>
-            <span class="font-weight-bold ms-1">انتهى30</span>
-            هذا الشهر'
+          <span class="font-weight-bold ms-1">انتهى30</span> هذا الشهر'
           :headings="['المشروع', 'أعضاء', 'ميزانية', 'إكمال']"
-          :rows="[
-            {
-              logo: logoXD,
-              tool: 'Material XD الإصدار',
-              teamMembers: [team1, team2, team3, team4],
-              price: '$14,000',
-              progress: 60,
-            },
-            {
-              logo: logoAtlassian,
-              tool: 'أضف مسار التقدم إلى التطبيق الداخلي',
-              teamMembers: [team1, team2],
-              price: '$3,000',
-              progress: 10,
-            },
-            {
-              logo: logoSlack,
-              tool: 'إصلاح أخطاء النظام الأساسي',
-              teamMembers: [team2, team4],
-              price: 'غير مضبوط',
-              progress: 100,
-            },
-            {
-              logo: logoSpotify,
-              tool: 'إطلاق تطبيق الهاتف المحمول الخاص بنا',
-              teamMembers: [team1, team2, team3, team4],
-              price: '$20,500',
-              progress: 60,
-            },
-            {
-              logo: logoJira,
-              tool: 'أضف صفحة التسعير الجديدة',
-              teamMembers: [team1],
-              price: '$500',
-              progress: 25,
-            },
-            {
-              logo: logoInvision,
-              tool: 'إعادة تصميم متجر جديد على الإنترنت',
-              teamMembers: [team1, team4],
-              price: '$2,000',
-              progress: 40,
-            },
-          ]"
-          :action="[
-            {
-              route: 'javascript:;',
-              label: 'عمل',
-            },
-            {
-              route: 'javascript:;',
-              label: 'عمل اخر',
-            },
-            {
-              route: 'javascript:;',
-              label: 'شی اخر هنا',
-            },
-          ]"
+          :rows="[]"
         />
       </div>
       <div class="col-lg-4 col-md-6">
         <timeline-list
           class="h-100"
           title="نظرة عامة على الطلبات"
-          description="<i class='fa fa-arrow-up text-success' aria-hidden='true'></i>
-        <span class='font-weight-bold'>24%</span>هذا الشهر"
+          description="<i class='fa fa-arrow-up text-success'></i>
+          <span class='font-weight-bold'>24%</span> هذا الشهر"
         >
           <timeline-item
             :icon="{ component: 'ni ni-bell-55', color: 'success' }"
             title="$2400, تغييرات في التصميم"
             date-time="22 ديسمبر 7:20 مساءً"
-          />
-          <TimelineItem
-            :icon="{ component: 'ni ni-html5', color: 'danger' }"
-            title="طلب جديد # 1832412"
-            date-time="21 ديسمبر 11 م"
-          />
-          <TimelineItem
-            :icon="{ component: 'ni ni-cart', color: 'info' }"
-            title="مدفوعات الخادم لشهر أبريل"
-            date-time="21 ديسمبر 9:34 مساءً"
-          />
-          <TimelineItem
-            :icon="{ component: 'ni ni-credit-card', color: 'warning' }"
-            title="تمت إضافة بطاقة جديدة للأمر رقم 4395133"
-            date-time="20 ديسمبر 2:20 صباحًا"
-          />
-          <TimelineItem
-            :icon="{ component: 'ni ni-key-25', color: 'primary' }"
-            title="فتح الحزم من أجل التطوير"
-            date-time="18 ديسمبر ، 4:54 صباحًا"
-          />
-          <TimelineItem
-            :icon="{ component: 'ni ni-money-coins', color: 'dark' }"
-            title="طلب جديد # 9583120"
-            date-time="17 ديسمبر"
           />
         </timeline-list>
       </div>

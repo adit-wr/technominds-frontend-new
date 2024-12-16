@@ -1,4 +1,13 @@
 <script setup>
+import { useUIStore } from "@/store/uiStore";  // Pastikan path ke store benar
+import { computed } from "vue";
+
+// Akses store
+const uiStore = useUIStore();
+
+// Pastikan uiStore terinisialisasi dengan benar
+const darkMode = computed(() => uiStore ? uiStore.darkMode : false);  // Menggunakan nilai default 'false' jika uiStore tidak tersedia
+
 defineProps({
   btnBackground: {
     type: String,
@@ -8,13 +17,13 @@ defineProps({
     type: String,
     default: "",
   },
-  darkMode: {
-    type: Boolean,
-    default: false,
+  isBtn: {
+    type: String,
+    default: "bg-gradient-light",
   },
-  isBtn: { type: String, default: "bg-gradient-light" },
 });
 </script>
+
 <template>
   <!-- Navbar -->
   <nav
@@ -24,10 +33,11 @@ defineProps({
     <div class="container ps-2 pe-0">
       <router-link
         class="navbar-brand font-weight-bolder ms-lg-0 ms-3"
-        :class="darkMode ? 'text-black' : 'text-white'"
+        :class="darkMode ? 'text-black' : 'text-white'"  
         to="/"
-        >TechnoMinds</router-link
       >
+        TechnoMinds
+      </router-link>
       <button
         class="shadow-none navbar-toggler ms-2"
         type="button"
@@ -70,7 +80,7 @@ defineProps({
             </router-link>
           </li>
           <li class="nav-item">
-            <router-link class="nav-link me-2" to="/signin">
+            <router-link class="nav-link me-2" to="/login">
               <i
                 class="fas fa-key opacity-6 me-1"
                 aria-hidden="true"

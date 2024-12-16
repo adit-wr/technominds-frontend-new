@@ -1,9 +1,9 @@
 <script setup>
 import { computed } from "vue";
-import { useStore } from "vuex";
+import { useUIStore } from "@/stores/uiStore";
 
-const store = useStore();
-const isRTL = computed(() => store.state.isRTL);
+const uiStore = useUIStore();
+const isRTL = computed(() => uiStore.isRTL);
 
 defineProps({
   title: {

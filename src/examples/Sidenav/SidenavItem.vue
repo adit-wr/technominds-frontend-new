@@ -1,10 +1,10 @@
 <script setup>
 import { computed } from "vue";
-import { useStore } from "vuex";
+import { useUIStore } from "@/store/uiStore";
 
-const store = useStore();
-const isRTL = computed(() => store.state.isRTL);
-const sidebarMinimize = () => store.commit("sidebarMinimize");
+const uiStore = useUIStore();
+const isRTL = computed(() => uiStore.isRTL);
+const sidebarMinimize = () => uiStore.commit("sidebarMinimize");
 
 const minimizeSidebar = () => {
   if (window.innerWidth < 1200) {

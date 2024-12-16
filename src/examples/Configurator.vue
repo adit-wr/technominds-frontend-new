@@ -1,31 +1,31 @@
 <script setup>
 import { computed } from "vue";
-import { useStore } from "vuex";
+import { useUIStore } from "@/stores/uiStore";
 import { activateDarkMode, deactivateDarkMode } from "@/assets/js/dark-mode";
 
-const store = useStore();
+const uiStore = useUIStore();
 // state
-const isRTL = computed(() => store.state.isRTL);
-const isNavFixed = computed(() => store.state.isNavFixed);
-const sidebarType = computed(() => store.state.sidebarType);
-const toggleConfigurator = () => store.commit("toggleConfigurator");
+const isRTL = computed(() => uiStore.isRTL);
+const isNavFixed = computed(() => uiStore.isNavFixed);
+const sidebarType = computed(() => uiStore.sidebarType);
+const toggleConfigurator = () => uiStore.commit("toggleConfigurator");
 
 // mutations
-const navbarFixed = () => store.commit("navbarFixed");
-const setSidebarType = (type) => store.commit("sidebarType", type);
+const navbarFixed = () => uiStore.commit("navbarFixed");
+const setSidebarType = (type) => uiStore.commit("sidebarType", type);
 
 const sidebarColor = (color = "success") => {
   document.querySelector("#sidenav-main").setAttribute("data-color", color);
 };
 
 const darkMode = () => {
-  if (store.state.darkMode) {
-    store.state.darkMode = false;
+  if (uiStore.darkMode) {
+    uiStore.darkMode = false;
     setSidebarType("bg-white");
     deactivateDarkMode();
     return;
   } else {
-    store.state.darkMode = true;
+    uiStore.darkMode = true;
     setSidebarType("bg-default");
     activateDarkMode();
   }

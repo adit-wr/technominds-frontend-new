@@ -1,10 +1,10 @@
 <script setup>
 import { computed } from "vue";
-import { useStore } from "vuex";
-const store = useStore();
+import { useUIStore } from "@/stores/uiStore";
+const uiStore = useUIStore();
 
-const isRTL = computed(() => store.state.isRTL);
-const layout = computed(() => store.state.layout);
+const isRTL = computed(() => uiStore.isRTL);
+const layout = computed(() => uiStore.layout);
 defineProps({
   card: {
     type: Object,

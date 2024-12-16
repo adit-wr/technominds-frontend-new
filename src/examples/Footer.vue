@@ -1,6 +1,6 @@
 <script setup>
-import { useStore } from "vuex";
-const store = useStore();
+import { useUIStore } from "@/stores/uiStore";
+const uiStore = useUIStore();
 </script>
 <template>
   <footer class="py-3 footer">

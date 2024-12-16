@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 import Dashboard from "../views/Dashboard.vue";
-import Signin from "../views/Signin.vue";
-import Signup from "../views/Signup.vue";
+import Login from "../components/auth/Login.vue";
+import Register from "../components/auth/Register.vue";
 
 // Import the new role-based view components
 import WhOperatorView from "../views/wh_operator/WhOperatorView.vue";
@@ -9,13 +9,13 @@ import PhOperatorView from "../views/ph_operator/PhOperatorView.vue";
 
 // Helper function to retrieve role from localStorage
 const getUserRole = () => {
-  return localStorage.getItem("userRole") || "wh_operator";
+  return localStorage.getItem("role") || "wh_operator"; 
 };
 
 const routes = [
   {
     path: "/",
-    redirect: "/signin",
+    redirect: "/login",
   },
   {
     path: "/dashboard-default",
@@ -23,14 +23,14 @@ const routes = [
     component: Dashboard,
   },
   {
-    path: "/signin",
-    name: "Signin",
-    component: Signin,
+    path: "/login",
+    name: "Login",
+    component: Login,
   },
   {
-    path: "/signup",
-    name: "Signup",
-    component: Signup,
+    path: "/register",
+    name: "Register",
+    component: Register,
   },
   // Define routes based on user role
   {
@@ -44,7 +44,7 @@ const routes = [
     ],
     beforeEnter: (to, from, next) => {
       if (getUserRole() === "wh_operator") next();
-      else next("/signin");
+      else next("/login"); 
     },
   },
   {
@@ -57,7 +57,7 @@ const routes = [
     ],
     beforeEnter: (to, from, next) => {
       if (getUserRole() === "ph_operator") next();
-      else next("/signin");
+      else next("/login"); 
     },
   },
 ];
@@ -65,6 +65,21 @@ const routes = [
 const router = createRouter({
   history: createWebHistory(),
   routes,
+});
+
+router.beforeEach((to, from, next) => {
+  const isAuthenticated = Boolean(localStorage.getItem("auth")); 
+  const userRole = localStorage.getItem("role"); 
+
+  if (to.meta.requiresAuth && !isAuthenticated) {
+    alert("You need to log in to access this page.");
+    next({ name: "login" });
+  } else if (to.meta.requiresAuth && isAuthenticated && to.meta.role !== userRole) {
+    alert("You do not have permission to access this page.");
+    next(false); 
+  } else {
+    next(); 
+  }
 });
 
 export default router;

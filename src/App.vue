@@ -1,13 +1,14 @@
 <script setup>
-import { computed } from "vue";
-import { useStore } from "vuex";
+import { storeToRefs } from "pinia";
+import { useUIStore } from "@/store/uiStore";
 import Sidenav from "./examples/Sidenav";
 import Navbar from "@/examples/Navbars/Navbar.vue";
 
-const store = useStore();
-const showSidenav = computed(() => store.state.showSidenav);
-const layout = computed(() => store.state.layout);
-const showNavbar = computed(() => store.state.showNavbar);
+// Menggunakan Pinia Store
+const uiStore = useUIStore();
+
+// Destrukturisasi state dari store menggunakan `storeToRefs`
+const { showSidenav, layout, showNavbar } = storeToRefs(uiStore);
 </script>
 
 <template>

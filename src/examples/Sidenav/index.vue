@@ -1,16 +1,18 @@
 <script setup>
 import { computed } from "vue";
-import { useStore } from "vuex";
+import { useUIStore } from "@/store/uiStore";
 import SidenavList from "./SidenavList.vue";
 import logo from "@/assets/img/logo.jpeg";
 import logoWhite from "@/assets/img/logo.jpeg";
 
-const store = useStore();
-const isRTL = computed(() => store.state.isRTL);
-const layout = computed(() => store.state.layout);
-const sidebarType = computed(() => store.state.sidebarType);
-const darkMode = computed(() => store.state.darkMode);
+const uiStore = useUIStore();
+
+const isRTL = computed(() => uiStore.isRTL);
+const layout = computed(() => uiStore.layout);
+const sidebarType = computed(() => uiStore.sidebarType);
+const darkMode = computed(() => uiStore.darkMode);
 </script>
+
 <template>
   <div
     v-show="layout === 'default'"

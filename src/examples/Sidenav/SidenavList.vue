@@ -1,26 +1,27 @@
 <script setup>
 import { useRoute } from "vue-router";
+import { useUIStore } from "@/store/uiStore"; // Impor store Pinia
 import SidenavItem from "./SidenavItem.vue";
-// eslint-disable-next-line
-import SidenavCard from "./SidenavCard.vue";
-// eslint-disable-next-line
-import { ref, computed, watch} from "vue";
+import { ref,  watch } from "vue";
 
+// Mengakses store UI
+const uiStore = useUIStore();
 const route = useRoute();
-const isSidebarVisible = ref(true);
+
+// Role pengguna disimpan di localStorage
 const userRole = ref(localStorage.getItem("userRole") || "guest");
 const isModalVisible = ref(false);
 
 // Watcher untuk mengubah status sidebar saat modal terbuka
 watch(isModalVisible, (newVal) => {
-  isSidebarVisible.value = !newVal; 
+  uiStore.showSidenav = !newVal; // Mengupdate status sidebar di Pinia store
 });
 
 const getRoute = () => route.name;
 </script>
 
 <template>
-  <aside :class="['sidebar', { 'sidebar-hidden': !isSidebarVisible, 'sidebar-inactive': isModalVisible }]">
+  <aside :class="['sidebar', { 'sidebar-hidden': !uiStore.showSidenav, 'sidebar-inactive': isModalVisible }]">
     <div class="collapse navbar-collapse w-auto h-auto h-100" id="sidenav-collapse-main">
       <ul class="navbar-nav">
         <!-- Dashboard (Tampil untuk semua role) -->
@@ -72,18 +73,18 @@ const getRoute = () => route.name;
             </sidenav-item>
           </li>
         </template>
-        
+
         <!-- Menu Akun (Tampil untuk semua role) -->
         <li class="mt-3 nav-item">
           <h6 class="text-xs ps-4 text-uppercase font-weight-bolder opacity-6 ms-2">ACCOUNT PAGES</h6>
         </li>
         <li class="nav-item">
-          <sidenav-item to="/signin" :class="getRoute() === 'signin' ? 'active' : ''" navText="Sign In">
+          <sidenav-item to="/Login" :class="getRoute() === 'login' ? 'active' : ''" navText="Sign In">
             <template v-slot:icon><i class="bi bi-box-arrow-in-right text-danger text-sm opacity-10"></i></template>
           </sidenav-item>
         </li>
         <li class="nav-item">
-          <sidenav-item to="/signup" :class="getRoute() === 'signup' ? 'active' : ''" navText="Sign up">
+          <sidenav-item to="/Register" :class="getRoute() === 'register' ? 'active' : ''" navText="Sign up">
             <template v-slot:icon><i class="bi bi-person-plus text-danger text-sm opacity-10"></i></template>
           </sidenav-item>
         </li>

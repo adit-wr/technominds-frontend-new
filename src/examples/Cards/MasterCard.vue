@@ -1,11 +1,11 @@
 <script setup>
 import { computed } from "vue";
-import { useStore } from "vuex";
+import { useUIStore } from "@/stores/uiStore";
 import ArgonAvatar from "@/components/ArgonAvatar.vue";
 import img1 from "../../assets/img/logos/mastercard.png";
 
-const store = useStore();
-const isRTL = computed(() => store.state.isRTL);
+const uiStore = useUIStore();
+const isRTL = computed(() => uiStore.isRTL);
 defineProps({
   card: {
     type: Object,
