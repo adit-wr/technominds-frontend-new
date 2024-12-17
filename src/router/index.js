@@ -9,7 +9,7 @@ import PhOperatorView from "../views/ph_operator/PhOperatorView.vue";
 
 // Helper function to retrieve role from localStorage
 const getUserRole = () => {
-  return localStorage.getItem("role") || "wh_operator"; 
+  return localStorage.getItem("role") || "WH_OPERATOR"; 
 };
 
 const routes = [
@@ -38,12 +38,12 @@ const routes = [
     component: WhOperatorView,
     children: [
       { path: "tables", component: () => import("../views/wh_operator/Tables.vue") },
-      { path: "spk-masuk", component: () => import("../views/wh_operator/SPKMasuk.vue") },
+      { path: "spk-masuk ", component: () => import("../views/wh_operator/SPKMasuk.vue") },
       { path: "riwayat-spk", component: () => import("../views/wh_operator/RiwayatSPK.vue") },
       { path: "profile", component: () => import("../views/wh_operator/Profile.vue") },
     ],
     beforeEnter: (to, from, next) => {
-      if (getUserRole() === "wh_operator") next();
+      if (getUserRole() === "WH_OPERATOR") next();
       else next("/login"); 
     },
   },
@@ -56,7 +56,7 @@ const routes = [
       { path: "riwayat-spk", component: () => import("../views/ph_operator/RiwayatSPKPH.vue") },
     ],
     beforeEnter: (to, from, next) => {
-      if (getUserRole() === "ph_operator") next();
+      if (getUserRole() === "PH_OPERATOR") next();
       else next("/login"); 
     },
   },

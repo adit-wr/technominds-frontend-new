@@ -1,4 +1,4 @@
-<template>
+ <template>
   <div class="item-list">
     <div class="card">
       <div class="card-header d-flex justify-content-between align-items-center">
@@ -49,12 +49,6 @@ export default {
     return {
       riwayat: [
         { id: 1, name: "Budi", tanggal: "2024-01-01", status: "done", pdfLink: "/path/to/pdf1.pdf" },
-        { id: 2, name: "Andi", tanggal: "2024-01-02", status: "done", pdfLink: "/path/to/pdf2.pdf" },
-        { id: 3, name: "Dodi", tanggal: "2024-01-03", status: "done", pdfLink: "/path/to/pdf3.pdf" },
-        { id: 4, name: "Krisna", tanggal: "2024-01-04", status: "done", pdfLink: "/path/to/pdf4.pdf" },
-        { id: 5, name: "Asep", tanggal: "2024-01-05", status: "done", pdfLink: "/path/to/pdf5.pdf" },
-        { id: 6, name: "Wulan", tanggal: "2024-01-06", status: "done", pdfLink: "/path/to/pdf6.pdf" },
-        { id: 7, name: "Aisyah", tanggal: "2024-01-07", status: "done", pdfLink: "/path/to/pdf7.pdf" },
       ],
       showForm: false,
       selectedItem: null,

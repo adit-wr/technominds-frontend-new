@@ -57,7 +57,7 @@ watch(selectedRole, (newRole) => {
               <i class="cursor-pointer fa fa-user"></i>
             </a>
             <ul class="px-2 py-3 dropdown-menu dropdown-menu-end me-sm-n4" :class="showRoleDropdown ? 'show' : ''">
-              <li><a class="dropdown-item" @click="handleRoleSelection('wh_operator')">WH Operator</a></li>
+              <li><a class="dropdown-item" @click="handleRoleSelection('WH_OPERATOR')">WH Operator</a></li>
               <li><a class="dropdown-item" @click="handleRoleSelection('ph_operator')">PH Operator</a></li>
             </ul>
             <ul>

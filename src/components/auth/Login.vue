@@ -44,9 +44,9 @@ const login = async () => {
     authStore.setRole(role);
 
     alert("Login Success");
-    if (role === "wh_operator") {
+    if (role === "WH_OPERATOR") {
       window.location.href = "/wh-operator";
-    } else if (role === "ph_operator") {
+    } else if (role === "PH_OPERATOR") {
       window.location.href = "/ph-operator";
     }
   } catch (err) {

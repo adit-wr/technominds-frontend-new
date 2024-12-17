@@ -11,34 +11,34 @@
               <th>Nama</th>
               <th>Deskripsi</th>
               <th>Stok</th>
-              <th>Harga</th>
+              <th>status</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="item in items" :key="item.id">
+            <tr v-for="item in items" :key="item.materialId">
               <td>
                 <div class="item-name">{{ item.name }}</div>
               </td>
               <td>
                 <div class="item-description text-muted">
-                  {{ item.deskripsi }}
+                  {{ item.descriptions }}
                 </div>
               </td>
               <td>
                 <span
                   class="badge"
                   :class="{
-                    'bg-success': item.stok > 200,
-                    'bg-warning': item.stok <= 200 && item.stok > 50,
-                    'bg-danger': item.stok <= 50,
+                    'bg-success': item.quantity > 200,
+                    'bg-warning': item.quantity <= 200 && item.stok > 50,
+                    'bg-danger': item.quantity <= 50,
                   }"
                 >
-                  {{ item.stok }}
+                  {{ item.quantity }}
                 </span>
               </td>
               <td>
                 <div class="item-price text-primary fw-bold">
-                  {{ item.price }}
+                  {{ item.status }}
                 </div>
               </td>
             </tr>
@@ -55,60 +55,11 @@ export default {
     return {
       items: [
         {
-          id: 1,
+          materialId: 1,
           name: "Benang Poliéster",
-          deskripsi: "Benang berkualitas tinggi untuk menjahit",
-          stok: 500,
-          price: "Rp 100.000",
-        },
-        {
-          id: 2,
-          name: "Kain Katun",
-          deskripsi: "Kain katun untuk pembuatan pakaian",
-          stok: 200,
-          price: "Rp 250.000",
-        },
-        {
-          id: 3,
-          name: "Kain Spandex",
-          deskripsi: "Kain elastis untuk pakaian olahraga",
-          stok: 150,
-          price: "Rp 300.000",
-        },
-        {
-          id: 4,
-          name: "Kain Satin",
-          deskripsi: "Kain satin untuk busana formal",
-          stok: 100,
-          price: "Rp 500.000",
-        },
-        {
-          id: 5,
-          name: "Dye (Pewarna)",
-          deskripsi: "Pewarna tekstil untuk memberikan warna pada kain",
-          stok: 300,
-          price: "Rp 50.000",
-        },
-        {
-          id: 6,
-          name: "Bahan Pelapis",
-          deskripsi: "Bahan untuk pelapisan kain",
-          stok: 250,
-          price: "Rp 200.000",
-        },
-        {
-          id: 7,
-          name: "Furnitur Mesin Jahit",
-          deskripsi: "Peralatan untuk memproduksi pakaian",
-          stok: 20,
-          price: "Rp 15.000.000",
-        },
-        {
-          id: 8,
-          name: "Pita Pengukur",
-          deskripsi: "Alat untuk mengukur ukuran kain",
-          stok: 50,
-          price: "Rp 15.000",
+          descriptions: "Benang berkualitas tinggi untuk menjahit",
+          quantity: 500,
+          status: "UNVAILABLE",
         },
       ],
     };

@@ -9,7 +9,7 @@
               <input
                 type="text"
                 v-model="form.code"
-                id="code"
+                materialId="code"
                 :disabled="isEdit"
                 required
               />
@@ -22,22 +22,36 @@
             </td>
           </tr>
           <tr>
-            <td>Deskripsi </td>
+            <td>Deskripsi</td>
             <td>
-              <input type="text" v-model="form.deskripsi" id="deskripsi" required />
+              <input
+                type="text"
+                v-model="form.descriptions"
+                id="descriptions"
+                required
+              />
             </td>
           </tr>
           <tr>
-            <td>Stok </td>
+            <td>Stok</td>
             <td>
-              <input type="number" v-model="form.stok" id="stok" required />
+              <input
+                type="number"
+                v-model="form.quantity"
+                id="quantity"
+                required
+              />
             </td>
           </tr>
           <tr>
-            <td>Harga </td>
-            <td>
-              <input type="number" v-model="form.price" id="price" required />
-            </td>
+            <td>Status</td>
+            <div class="form-group">
+              <label for="status">Status</label>
+              <select v-model="localItem.status" class="form-control">
+                <option value="AVAILABLE">Available</option>
+                <option value="UNAVAILABLE">Unavailable</option>
+              </select>
+            </div>
           </tr>
           <tr>
             <td></td>
@@ -60,68 +74,68 @@
 
 <script>
 export default {
-  name: 'ItemForm',
+  name: "ItemForm",
   props: {
     item: {
       type: Object,
       default: () => ({
-        code: '',
-        name: '',
-        deskripsi: '',
-        stok: 0,
-        price: 0
-      })
+        code: "",
+        name: "",
+        descriptions: "",
+        quantity: 0,
+        status: "",
+      }),
     },
     isEdit: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
   data() {
     return {
       form: {
-        code: '',
-        name: '',
-        deskripsi: '',
-        stok: 0,
-        price:0
-      }
-    }
+        code: "",
+        name: "",
+        descriptions: "",
+        quantity: 0,
+        status: "",
+      },
+    };
   },
   watch: {
-  item: {
-    immediate: true,
-    handler(newItem) {
-      if (newItem) {
-        this.form = {
-          code: newItem.id || '',
-          name: newItem.name || '',
-          deskripsi: newItem.deskripsi || '',
-          stok: newItem.stok || '0',
-          price: newItem.price || '0'
-        };
-      } else {
-        this.form = {
-          code: '',
-          name: '',
-          deskripsi: '',
-          stok: 0,
-          price: newItem.price || 0
-        };
-      }
-    }
-  }
-},
+    item: {
+      immediate: true,
+      handler(newItem) {
+        if (newItem) {
+          this.form = {
+            code: newItem.materialId || "",
+            name: newItem.name || "",
+            descriptions: newItem.descriptions || "",
+            quantity: newItem.quantity || "0",
+            status: newItem.status || "",
+          };
+        } else {
+          this.form = {
+            code: "",
+            name: "",
+            descriptions: "",
+            quantity: 0,
+            status: "",
+          };
+        }
+      },
+    },
+  },
   methods: {
     submitForm() {
-      if (this.form.stok < 0) {
-        alert('Stok tidak boleh negatif');
+      if (this.form.quantity < 0) {
+        alert("Stok tidak boleh negatif");
         return;
       }
-      
-      this.$emit('submit', { ...this.form });
-    }
-  }
+
+      this.$emit("submit", { ...this.form });
+    },
+  },
 };
 </script>
 
