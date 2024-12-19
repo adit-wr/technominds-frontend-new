@@ -11,34 +11,34 @@
               <th>Nama</th>
               <th>Deskripsi</th>
               <th>Stok</th>
-              <th>status</th>
+              <th>Status</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="item in items" :key="item.materialId">
+             <tr v-for="material in materials" :key="material.materialId">
               <td>
-                <div class="item-name">{{ item.name }}</div>
+                <div class="item-name">{{ material.name }}</div>
               </td>
               <td>
                 <div class="item-description text-muted">
-                  {{ item.descriptions }}
+                  {{ material.descriptions }}
                 </div>
               </td>
               <td>
                 <span
                   class="badge"
                   :class="{
-                    'bg-success': item.quantity > 200,
-                    'bg-warning': item.quantity <= 200 && item.stok > 50,
-                    'bg-danger': item.quantity <= 50,
+                    'bg-success': material.quantity > 200,
+                    'bg-warning': material.quantity <= 200 && material.quantity > 50,
+                    'bg-danger': material.quantity <= 50,
                   }"
                 >
-                  {{ item.quantity }}
+                  {{ material.quantity }}
                 </span>
               </td>
               <td>
                 <div class="item-price text-primary fw-bold">
-                  {{ item.status }}
+                  {{ material.status }}
                 </div>
               </td>
             </tr>
@@ -50,19 +50,46 @@
 </template>
 
 <script>
+import axios from "axios";
+import { useAuthStore } from "@/store/authStore"; // Pastikan jalur sesuai dengan lokasi authStore Anda.
+
 export default {
+  name: "MaterialsTable",
   data() {
     return {
-      items: [
-        {
-          materialId: 1,
-          name: "Benang Poliéster",
-          descriptions: "Benang berkualitas tinggi untuk menjahit",
-          quantity: 500,
-          status: "UNVAILABLE",
-        },
-      ],
+      materials: [], // Inisialisasi data untuk menampung daftar material.
     };
+  },
+  methods: {
+    fetchMaterials() {
+      const authStore = useAuthStore(); // Mengambil token dari authStore.
+      if (!authStore.token) {
+        console.error("Token kosong! Tidak dapat melakukan permintaan API.");
+        return;
+      }
+
+      axios
+        .get("http://localhost:3000/api/materials", {
+          headers: {
+            Authorization: `Bearer ${authStore.token}`, // Menyertakan token di header Authorization.
+          },
+        })
+        .then((response) => {
+          this.materials = response.data; // Menyimpan data material dari respons API.
+        })
+        .catch((error) => {
+          console.error("Error fetching materials:", error);
+        });
+    },
+    formatPrice(price) {
+      return new Intl.NumberFormat("id-ID", {
+        style: "currency",
+        currency: "IDR",
+      }).format(price);
+    },
+  },
+  mounted() {
+    this.fetchMaterials(); // Memanggil metode fetchMaterials setelah komponen dimount.
   },
 };
 </script>

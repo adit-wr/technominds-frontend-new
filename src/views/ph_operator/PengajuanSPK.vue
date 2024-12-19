@@ -4,21 +4,25 @@
       <h2 class="text-center">Pengajuan SPK</h2>
       <form @submit.prevent="submitSPK">
         <div class="mb-3">
-          <label for="employeeName" class="form-label">Nama Karyawan</label>
+          <label for="userId" class="form-label">Nama Karyawan</label>
           <input
             type="text"
             class="form-control"
-            id="employeeName"
-            v-model="employeeName"
+            id="userId"
+            v-model="userId"
+            @blur="fetchEmployeeName"
             required
+            disabled
           />
+          <small v-if="employeeName">Nama Karyawan: {{ employeeName }}</small>
+          <!-- Menampilkan nama karyawan -->
         </div>
         <div class="mb-3">
           <label for="spkFile" class="form-label">Upload SPK</label>
           <input
             type="file"
             class="form-control"
-            id="spkFile"
+            id="file"
             @change="handleFileUpload"
             required
           />
@@ -28,7 +32,7 @@
           <input
             type="date"
             class="form-control"
-            id="submissionDate"
+            id="tanggal_pengajuan"
             v-model="submissionDate"
             required
           />
@@ -36,8 +40,12 @@
 
         <div class="mb-3">
           <label for="operator" class="form-label">Penerima</label>
-          <select class="form-select" v-model="selectedOperator" required>
-            <option v-for="operator in operators" :key="operator.name" :value="operator.name">
+          <select class="form-select" v-model="penerima" required>
+            <option
+              v-for="operator in operators"
+              :key="operator.name"
+              :value="operator.name"
+            >
               {{ operator.name }} || {{ operator.status }}
             </option>
           </select>
@@ -50,14 +58,17 @@
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
   name: "SPKForm",
   data() {
     return {
-      employeeName: "",
-      spkFile: null,
-      submissionDate: "",
-      selectedOperator: "",
+      userId: "",
+      file: null,
+      tanggal_pengajuan: "",
+      penerima: "",
+      employeeName: "",  // Untuk menyimpan nama karyawan
       operators: [
         { name: "Doni Monardo", status: "Free" },
         { name: "Imelda Kartiwa", status: "Off" },
@@ -68,34 +79,58 @@ export default {
   },
   methods: {
     handleFileUpload(event) {
-      this.spkFile = event.target.files[0];
+      this.file = event.target.files[0]; // Menggunakan this.file agar konsisten
     },
-    submitSPK() {
+    
+    // Fungsi untuk mengambil data nama karyawan berdasarkan userId
+    async fetchEmployeeName() {
+      if (this.userId) {
+        try {
+          const token = localStorage.getItem('jwt_token');  // Ambil token dari localStorage
+          const response = await axios.get(`http://localhost:3000/api/user/${this.userId}`, {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+            }
+          });
+          this.employeeName = response.data.name;  // Menyimpan nama karyawan
+        } catch (error) {
+          console.error('Gagal mengambil data karyawan:', error);
+          this.employeeName = "";  // Jika error, reset nama karyawan
+        }
+      }
+    },
+    
+    async submitSPK() {
       const formData = new FormData();
-      formData.append("employeeName", this.employeeName);
-      formData.append("spkFile", this.spkFile);
-      formData.append("submissionDate", this.submissionDate);
-      formData.append("selectedOperator", this.selectedOperator);
+      formData.append("user", this.userId);
+      formData.append("file", this.file);
+      formData.append("tanggal_pengajuan", this.tanggal_pengajuan);
+      formData.append("penerima", this.penerima);
 
-      // Send the form data to the server
-      // Example: axios.post('your/api/endpoint', formData)
-      console.log("Form submitted", {
-        employeeName: this.employeeName,
-        submissionDate: this.submissionDate,
-        spkFile: this.spkFile,
-        selectedOperator: this.selectedOperator,
-      });
+      try {
+        const token = localStorage.getItem('jwt_token');
+        const response = await axios.post('http://localhost:3000/api/spk', formData, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        console.log(response.data);
+        alert('Data berhasil disubmit!');
+      } catch (error) {
+        console.error('Terjadi kesalahan:', error);
+        alert('Gagal mengirim data.');
+      }
 
       // Reset form fields after submission
-      this.employeeName = "";
-      this.spkFile = null;
-      this.submissionDate = "";
-      this.selectedOperator = "";
-    },
+      this.userId = "";
+      this.file = null;
+      this.tanggal_pengajuan = "";
+      this.penerima = "";
+      this.employeeName = "";  // Reset nama karyawan setelah submit
+    }
   },
 };
 </script>
-
 <style scoped>
 .container {
   max-width: 100%;

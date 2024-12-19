@@ -16,7 +16,7 @@ export const useUIStore = defineStore("uiStore", {
     showNavbar: true,
     showFooter: true,
     showMain: true,
-    layout: "default",
+    layout: "default", // Properti layout default
   }),
   actions: {
     toggleConfigurator() {
@@ -33,6 +33,14 @@ export const useUIStore = defineStore("uiStore", {
     },
     toggleSidebarColor(payload) {
       this.sidebarType = payload;
+    },
+    // Tambahkan fungsi setProfileLayout
+    setProfileLayout() {
+      this.layout = "profile"; // Ubah layout menjadi "profile"
+    },
+    // Tambahkan fungsi resetLayout
+    resetLayout() {
+      this.layout = "default"; // Kembalikan layout ke "default"
     },
   },
   getters: {

@@ -1,7 +1,9 @@
 import { createRouter, createWebHistory } from "vue-router";
-import Dashboard from "../views/Dashboard.vue";
+//import Dashboard from "../views/Dashboard.vue";
 import Login from "../components/auth/Login.vue";
 import Register from "../components/auth/Register.vue";
+import dashboardPH from "../views/dashboardPH.vue";
+import dashboardWH from "../views/dashboardWH.vue";
 
 // Import the new role-based view components
 import WhOperatorView from "../views/wh_operator/WhOperatorView.vue";
@@ -18,9 +20,14 @@ const routes = [
     redirect: "/login",
   },
   {
-    path: "/dashboard-default",
-    name: "Dashboard",
-    component: Dashboard,
+    path: "/ph-operator",
+    name: "dashbaordPH",
+    component: dashboardPH,
+  },
+  {
+    path: "/wh-operator",
+    name: "dashboardWH",
+    component: dashboardWH,
   },
   {
     path: "/login",
@@ -38,7 +45,7 @@ const routes = [
     component: WhOperatorView,
     children: [
       { path: "tables", component: () => import("../views/wh_operator/Tables.vue") },
-      { path: "spk-masuk ", component: () => import("../views/wh_operator/SPKMasuk.vue") },
+      { path: "spk", component: () => import("../views/wh_operator/SPKMasuk.vue") },
       { path: "riwayat-spk", component: () => import("../views/wh_operator/RiwayatSPK.vue") },
       { path: "profile", component: () => import("../views/wh_operator/Profile.vue") },
     ],

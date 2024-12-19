@@ -1,7 +1,8 @@
+// Login.vue
 <script setup>
 import { onBeforeUnmount, onBeforeMount, ref } from "vue";
-import { useAuthStore } from "@/store/authStore";
-import { login as loginService } from "@/services/authService";
+import { useAuthStore } from "@/store/authStore"; // Sesuaikan dengan lokasi store Anda
+import { login as loginService } from "@/services/authService"; // Sesuaikan dengan lokasi service Anda
 import { useUIStore } from "@/store/uiStore";
 import Navbar from "@/examples/PageLayout/Navbar.vue";
 import ArgonInput from "@/components/ArgonInput.vue";
@@ -9,8 +10,6 @@ import ArgonSwitch from "@/components/ArgonSwitch.vue";
 import ArgonButton from "@/components/ArgonButton.vue";
 
 const uiStore = useUIStore();
-
-const body = document.getElementsByTagName("body")[0];
 const authStore = useAuthStore();
 
 // Variabel untuk form input
@@ -24,7 +23,7 @@ onBeforeMount(() => {
   uiStore.showNavbar = false;
   uiStore.showSidenav = false;
   uiStore.showFooter = false;
-  body.classList.remove("bg-gray-100");
+  document.body.classList.remove("bg-gray-100");
 });
 
 onBeforeUnmount(() => {
@@ -32,16 +31,23 @@ onBeforeUnmount(() => {
   uiStore.showNavbar = true;
   uiStore.showSidenav = true;
   uiStore.showFooter = true;
-  body.classList.add("bg-gray-100");
+  document.body.classList.add("bg-gray-100");
 });
 
 // Fungsi login
 const login = async () => {
+  if (!username.value || !password.value) {
+    error.value = "Username dan Password tidak boleh kosong!";
+    return;
+  }
+
   try {
     const { token, role } = await loginService(username.value, password.value);
 
     authStore.setToken(token);
     authStore.setRole(role);
+    // Simpan role ke localStorage
+    localStorage.setItem("userRole", role); 
 
     alert("Login Success");
     if (role === "WH_OPERATOR") {
@@ -84,8 +90,7 @@ const login = async () => {
                   </p>
                 </div>
                 <div class="card-body">
-                  <!-- Hapus @submit.prevent="login" pada form -->
-                  <form>
+                  <form @submit.prevent="login">
                     <div class="mb-3">
                       <argon-input
                         id="username"
@@ -105,19 +110,18 @@ const login = async () => {
                       />
                     </div>
 
-                    <argon-switch id="rememberMe" name="remember-me"
-                      >Remember me</argon-switch
-                    >
+                    <argon-switch id="rememberMe" name="remember-me">
+                      Remember me
+                    </argon-switch>
 
                     <div class="text-center">
-                      <!-- Gunakan @click="login" untuk memanggil alert -->
                       <argon-button
                         class="mt-4"
                         variant="gradient"
                         color="success"
                         fullWidth
                         size="lg"
-                        @click="login"
+                        type="submit"
                       >
                         Sign in
                       </argon-button>

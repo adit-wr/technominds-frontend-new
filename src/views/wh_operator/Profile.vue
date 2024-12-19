@@ -8,11 +8,13 @@ import ProfileCard from "../components/ProfileCard.vue";
 import ArgonInput from "@/components/ArgonInput.vue";
 import ArgonButton from "@/components/ArgonButton.vue";
 
+// Ambil instance uiStore
 const uiStore = useUIStore();
 const body = document.getElementsByTagName("body")[0];
 
+// Lifecycle hooks
 onMounted(() => {
-  uiStore.setProfileLayout();
+  uiStore.setProfileLayout(); // Panggil fungsi setProfileLayout
   setNavPills();
   setTooltip();
 });
@@ -22,7 +24,7 @@ onBeforeMount(() => {
 });
 
 onBeforeUnmount(() => {
-  uiStore.resetLayout();
+  uiStore.resetLayout(); // Panggil fungsi resetLayout
   body.classList.remove("profile-overview");
 });
 </script>

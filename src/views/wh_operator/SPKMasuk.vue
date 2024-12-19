@@ -1,95 +1,107 @@
- <template>
+<template>
   <div class="item-list">
     <div class="card">
       <div class="card-header d-flex justify-content-between align-items-center">
-        <h2>Riwayat SPK Masuk</h2>
-        <button @click="print" class="btn btn-primary">
-          <i class="bi bi-printer"></i> Cetak Laporan
-        </button>
+        <h2>Daftar SPK Masuk</h2>
       </div>
-      <div class="card-body" id="print-section">
-        <table class="table table-bordered table-striped">
+      <div class="card-body">
+        <table class="table table-hover table-striped">
           <thead>
             <tr>
-              <th>No</th>
+              <th>Id</th>
               <th>Nama Karyawan</th>
+              <th>SPK</th>
               <th>Tanggal Pengajuan</th>
               <th>Status</th>
-              <th>SPK</th>
+              <th>Aksi</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(item, index) in riwayat" :key="item.id">
-              <td>{{ index + 1 }}</td>
-              <td>{{ item.name }}</td>
-              <td>{{ item.tanggal }}</td>
+            <tr v-for="item in tableData" :key="item.id">
+              <td>{{ item.id }}</td>
+              <td>{{ item.namaKaryawan }}</td>
+              <td>
+                <a :href="item.spk" target="_blank">Download PDF</a>
+              </td>
+              <td>{{ item.tanggalPengajuan }}</td>
               <td>{{ item.status }}</td>
               <td>
-                <a :href="item.pdfLink" target="_blank">Unduh PDF</a>
+                <button
+                  class="btn btn-primary btn-sm"
+                  @click="openForm(item)"
+                >
+                  <i class="bi bi-pencil-square"></i> Terima
+                </button>
               </td>
             </tr>
           </tbody>
         </table>
       </div>
     </div>
-    <Modal :visible="showForm" @close="cancelEditForm">
-      <ItemForm
-        :item="selectedItem"
-        :isEdit="isEdit"
-        @submit="handleSubmit"
-        @cancel="cancelEditForm"
-      />
-    </Modal>
+
+    <!-- Modal untuk Form -->
+    <FormSpk
+      v-if="showForm"
+      :visible="showForm"
+      :item="selectedItem"
+      @close="closeForm"
+      @updateStatus="updateStatus"
+    />
   </div>
 </template>
 
 <script>
+import FormSpk from "@/views/wh_operator/FormSpk.vue";
+
 export default {
+  components: {
+    FormSpk,
+  },
   data() {
     return {
-      riwayat: [
-        { id: 1, name: "Budi", tanggal: "2024-01-01", status: "done", pdfLink: "/path/to/pdf1.pdf" },
+      showForm: false, // Kontrol visibilitas modal
+      selectedItem: null, // Item yang dipilih
+      tableData: [
+        {
+          id: 1,
+          namaKaryawan: "John Doe",
+          spk: "https://drive.google.com/file/d/1eE_L0n1G8gc66qSkm6UtCsBocnFc78_j/view?usp=sharing",
+          tanggalPengajuan: "2024-11-01",
+          status: "On Process",
+        },
+        {
+          id: 2,
+          namaKaryawan: "Jane Smith",
+          spk: "https://drive.google.com/file/d/1eE_L0n1G8gc66qSkm6UtCsBocnFc78_j/view?usp=sharing",
+          tanggalPengajuan: "2024-11-02",
+          status: "On Process",
+        },
+        {
+          id: 3,
+          namaKaryawan: "Michael Johnson",
+          spk: "https://drive.google.com/file/d/1eE_L0n1G8gc66qSkm6UtCsBocnFc78_j/view?usp=sharing",
+          tanggalPengajuan: "2024-11-03",
+          status: "Done",
+        },
       ],
-      showForm: false,
-      selectedItem: null,
-      isEdit: false,
     };
   },
   methods: {
-    print() {
-      window.print();
+    openForm(item) {
+      this.selectedItem = { ...item }; // Salin data item ke modal
+      this.showForm = true; // Tampilkan modal
     },
-    showAddForm() {
-      this.selectedItem = { id: "", name: "", tanggal: "", status: "done", pdfLink: "" };
-      this.isEdit = false;
-      this.showForm = true;
+    closeForm() {
+      this.showForm = false; // Sembunyikan modal
+      this.selectedItem = null; // Reset data
     },
-    editItem(item) {
-      this.selectedItem = { ...item };
-      this.isEdit = true;
-      this.showForm = true;
-    },
-    handleSubmit(item) {
-      if (this.isEdit) {
-        const index = this.riwayat.findIndex((i) => i.id === item.id);
-        if (index !== -1) {
-          this.riwayat.splice(index, 1, item);
-        }
-      } else {
-        item.id = Date.now(); // Assign unique ID for new items
-        this.riwayat.push(item);
+    updateStatus(updatedItem) {
+      // Perbarui status item di tableData
+      const index = this.tableData.findIndex((item) => item.id === updatedItem.id);
+      if (index !== -1) {
+        this.tableData[index].status = updatedItem.status;
       }
-      this.showForm = false;
-      this.selectedItem = null;
-      this.isEdit = false;
-    },
-    cancelEditForm() {
-      this.showForm = false;
-      this.isEdit = false;
-      this.selectedItem = null;
-    },
-    deleteItem(id) {
-      this.riwayat = this.riwayat.filter((item) => item.id !== id);
+      this.closeForm(); // Tutup modal
     },
   },
 };
@@ -103,45 +115,64 @@ export default {
 /* Tabel styling */
 .table {
   width: 100%;
+  border-collapse: collapse;
   margin-top: 20px;
-  border-radius: 10px;
-  overflow: hidden; /* Untuk membuat sudut tabel lebih rapi */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.table th,
+.table th {
+  background-color: #f8f9fa;
+  color: #212529;
+  text-align: center;
+  font-weight: bold;
+  padding: 10px;
+  border: 1px solid #dee2e6;
+}
+
 .table td {
   text-align: center;
-  vertical-align: middle;
-  padding: 15px;
-}
-
-.table thead {
-  background-color: #fff; /* Biru khas Bootstrap */
-  color: white;
+  padding: 10px;
+  border: 1px solid #dee2e6;
 }
 
 .table tbody tr:nth-child(odd) {
-  background-color: #f8f9fa; /* Abu-abu terang */
+  background-color: #ffffff;
 }
 
 .table tbody tr:nth-child(even) {
-  background-color: #ffffff; /* Putih */
+  background-color: #f8f9fa;
 }
 
 .table tbody tr:hover {
-  background-color: #d1ecf1; /* Warna biru muda saat hover */
+  background-color: #e9ecef;
   cursor: pointer;
 }
 
 .table a {
   text-decoration: none;
   color: #007bff;
-  font-weight: bold;
 }
 
 .table a:hover {
   text-decoration: underline;
+}
+
+/* Badge styling */
+.badge {
+  display: inline-block;
+  padding: 5px 10px;
+  font-size: 12px;
+  font-weight: bold;
+  color: white;
+  border-radius: 5px;
+}
+
+.badge-success {
+  background-color: #28a745;
+}
+
+.badge-warning {
+  background-color: #ffc107;
 }
 
 /* Style untuk tampilan print */
@@ -160,3 +191,4 @@ export default {
   }
 }
 </style>
+ 

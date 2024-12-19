@@ -8,17 +8,17 @@
             <td>
               <input
                 type="text"
-                v-model="form.code"
-                materialId="code"
+                v-model="material.materialId"
+                id="materialId"
                 :disabled="isEdit"
                 required
               />
-            </td>
+            </td> 
           </tr>
           <tr>
             <td>Nama Barang</td>
             <td>
-              <input type="text" v-model="form.name" id="name" required />
+              <input type="text" v-model="material.name" id="name" required />
             </td>
           </tr>
           <tr>
@@ -26,7 +26,7 @@
             <td>
               <input
                 type="text"
-                v-model="form.descriptions"
+                v-model="material.descriptions"
                 id="descriptions"
                 required
               />
@@ -37,7 +37,7 @@
             <td>
               <input
                 type="number"
-                v-model="form.quantity"
+                v-model="material.quantity"
                 id="quantity"
                 required
               />
@@ -45,13 +45,12 @@
           </tr>
           <tr>
             <td>Status</td>
-            <div class="form-group">
-              <label for="status">Status</label>
-              <select v-model="localItem.status" class="form-control">
+            <td>
+              <select v-model="material.status" id="status" required>
                 <option value="AVAILABLE">Available</option>
                 <option value="UNAVAILABLE">Unavailable</option>
               </select>
-            </div>
+            </td>
           </tr>
           <tr>
             <td></td>
@@ -73,17 +72,20 @@
 </template>
 
 <script>
+import axios from "axios";
+import { useAuthStore } from "@/store/authStore";
+
 export default {
   name: "ItemForm",
   props: {
     item: {
       type: Object,
       default: () => ({
-        code: "",
+        materialId: "",
         name: "",
         descriptions: "",
         quantity: 0,
-        status: "",
+        status: "AVAILABLE",
       }),
     },
     isEdit: {
@@ -93,13 +95,7 @@ export default {
   },
   data() {
     return {
-      form: {
-        code: "",
-        name: "",
-        descriptions: "",
-        quantity: 0,
-        status: "",
-      },
+      material: { ...this.item },  
     };
   },
   watch: {
@@ -107,33 +103,88 @@ export default {
       immediate: true,
       handler(newItem) {
         if (newItem) {
-          this.form = {
-            code: newItem.materialId || "",
-            name: newItem.name || "",
-            descriptions: newItem.descriptions || "",
-            quantity: newItem.quantity || "0",
-            status: newItem.status || "",
-          };
+          this.material = { ...newItem };  
         } else {
-          this.form = {
-            code: "",
-            name: "",
-            descriptions: "",
-            quantity: 0,
-            status: "",
-          };
+          this.resetForm();  
         }
       },
     },
   },
   methods: {
-    submitForm() {
-      if (this.form.quantity < 0) {
-        alert("Stok tidak boleh negatif");
+    // Reset material ke nilai default
+    resetForm() {
+      this.material = {
+        materialId: "",
+        name: "",
+        descriptions: "",
+        quantity: 0,
+        status: "AVAILABLE",
+      };
+    },
+    // Method untuk menangani form submission (tambah/edit data)
+    async submitForm() {
+      const authStore = useAuthStore();
+      const token = authStore.token;
+
+      if (!token) {
+        alert("Token tidak valid, silakan login kembali!");
         return;
       }
 
-      this.$emit("submit", { ...this.form });
+      try {
+        if (this.isEdit) {
+          // API untuk update data
+          await axios.put(
+            `http://localhost:3000/api/materials/${this.material.materialId}`,
+            this.material,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+          alert("Data berhasil diperbarui!");
+        } else {
+          // API untuk tambah data baru
+          await axios.post("http://localhost:3000/api/materials", this.material, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          alert("Data berhasil ditambahkan!");
+        }
+
+        // Emit data yang telah disubmit ke parent component
+        this.$emit("submit", this.material);
+        this.resetForm(); // Reset form setelah submit
+
+        // Panggil fetchMaterials untuk memuat data setelah operasi selesai
+        this.fetchMaterials();
+      } catch (error) {
+        console.error("Terjadi kesalahan saat menyimpan data:", error);
+        alert("Gagal menyimpan data. Silakan coba lagi!");
+      }
+    },
+
+    // Method untuk mengambil data material setelah operasi
+    async fetchMaterials() {
+      const authStore = useAuthStore();
+      if (!authStore.token) {
+        console.error("Token kosong! Tidak dapat melakukan permintaan API.");
+        return;
+      }
+
+      try {
+        const response = await axios.get("http://localhost:3000/api/materials", {
+          headers: {
+            Authorization: `Bearer ${authStore.token}`,
+          },
+        });
+        console.log("Data bahan material:", response.data);
+        // Tangani data yang didapatkan, misalnya dengan mengupdate state
+      } catch (error) {
+        console.error("Terjadi kesalahan saat mengambil data:", error);
+      }
     },
   },
 };
@@ -150,7 +201,8 @@ td {
   padding: 10px;
 }
 
-input {
+input,
+select {
   width: 100%;
   padding: 8px;
   border: 1px solid #ddd;
