@@ -20,9 +20,9 @@
           <tbody>
             <tr v-for="item in tableData" :key="item.spkId">
               <td>{{ item.spkId }}</td>
-              <td>{{ item.nama_karyawan }}</td>
-              <td>{{ item.nama_barang }}</td>
-              <td>{{ item.quantity }}</td>
+              <td>{{ item.employeeName || 'N/A' }}</td> 
+              <td>{{ item.material?.name || 'N/A' }}</td> 
+              <td>{{ item.quantityOrder }}</td>
               <td>{{ formatTanggal(item.tanggal_pengajuan) }}</td>
               <td>
                 <span
@@ -48,7 +48,6 @@
         </table>
       </div>
     </div>
-
     <!-- Modal untuk Form -->
     <FormSpk
       v-if="showForm"
@@ -62,6 +61,7 @@
 
 <script>
 import FormSpk from "@/views/wh_operator/FormSpk.vue";
+import axios from "axios";
 
 export default {
   components: {
@@ -69,57 +69,55 @@ export default {
   },
   data() {
     return {
-      showForm: false, // Kontrol visibilitas modal
-      selectedItem: null, // Item yang dipilih
-      tableData: [
-        {
-          spkId: 1,
-          nama_karyawan: "John Doe",
-          tanggal_pengajuan: "2024-11-01",
-          penerima: "Admin WH",
-          nama_barang: "Barang A",
-          quantity: 10,
-          status: "PENDING",
-        },
-        {
-          spkId: 2,
-          nama_karyawan: "Jane Smith",
-          tanggal_pengajuan: "2024-11-02",
-          penerima: "Admin WH",
-          nama_barang: "Barang B",
-          quantity: 5,
-          status: "PENDING",
-        },
-        {
-          spkId: 3,
-          nama_karyawan: "Michael Johnson",
-          tanggal_pengajuan: "2024-11-03",
-          penerima: "Admin WH",
-          nama_barang: "Barang C",
-          quantity: 15,
-          status: "DONE",
-        },
-      ],
+      showForm: false, 
+      selectedItem: null, 
+      tableData: [], 
     };
   },
+  mounted() {
+    this.fetchSPKData(); 
+  },
   methods: {
+    // Fungsi untuk mengambil data SPK dari backend
+    async fetchSPKData() {
+      try {
+        const token = localStorage.getItem("jwt_token"); 
+        const response = await axios.get("http://localhost:3000/api/spk", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        // Memformat data SPK yang diterima
+        this.tableData = response.data.map((item) => ({
+          ...item,
+          employeeName: item.user?.name || "N/A", 
+          material: item.material || {}, 
+        }));
+      } catch (error) {
+        console.error("Error fetching SPK data:", error);
+      }
+    },
     openForm(item) {
-      this.selectedItem = { ...item }; // Salin data item ke modal
-      this.showForm = true; // Tampilkan modal
+      this.selectedItem = { ...item }; 
+      this.showForm = true; 
     },
     closeForm() {
-      this.showForm = false; // Sembunyikan modal
-      this.selectedItem = null; // Reset data
+      this.showForm = false; 
+      this.selectedItem = null; 
     },
     updateStatus(updatedItem) {
       // Perbarui status item di tableData
-      const index = this.tableData.findIndex((item) => item.spkId === updatedItem.spkId);
+      const index = this.tableData.findIndex(
+        (item) => item.spkId === updatedItem.spkId
+      );
       if (index !== -1) {
         this.tableData[index].status = updatedItem.status;
       }
-      this.closeForm(); // Tutup modal
+      this.closeForm(); 
     },
     formatTanggal(tanggal) {
+      if (!tanggal) return "Tidak Diketahui";
       const date = new Date(tanggal);
       return date.toLocaleDateString("id-ID", {
         year: "numeric",

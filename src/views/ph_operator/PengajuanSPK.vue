@@ -15,16 +15,29 @@
             disabled
           />
           <small v-if="employeeName">Nama Karyawan: {{ employeeName }}</small>
-          <!-- Menampilkan nama karyawan -->
         </div>
         <div class="mb-3">
-          <label for="spkFile" class="form-label">Nama Barang</label>
-          <input
-            type="nama_barang"
-            class="form-control"
-            id="nama_barang"
-            @change="handleFileUpload"
+          <label for="materialId" class="form-label">Nama Barang</label>
+          <select
+            class="form-select"
+            id="materialId"
+            v-model="materialId"
             required
+          >
+            <option v-for="material in materials" :key="material.materialId" :value="material.materialId">
+              {{ material.name }}
+            </option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label for="quantityOrder" class="form-label">Jumlah Barang</label>
+          <input
+            type="number"
+            class="form-control"
+            id="quantityOrder"
+            v-model="quantityOrder"
+            required
+            min="1"
           />
         </div>
         <div class="mb-3">
@@ -37,7 +50,6 @@
             required
           />
         </div>
-
         <div class="mb-3">
           <label for="operator" class="form-label">Penerima</label>
           <select class="form-select" v-model="penerima" required>
@@ -65,23 +77,25 @@ export default {
   data() {
     return {
       userId: "",
-      nama_barang: "",
+      materialId: "", // Menggunakan materialId yang dipilih dari dropdown
+      quantityOrder: 1, // Default quantity
       tanggal_pengajuan: "",
       penerima: "",
-      employeeName: "",  // Untuk menyimpan nama karyawan
+      employeeName: "", // Untuk menyimpan nama karyawan
       operators: [
         { name: "Doni Monardo", status: "Free" },
         { name: "Imelda Kartiwa", status: "Off" },
         { name: "Intal Amelia", status: "On Duty" },
         { name: "Jefri Ananda", status: "Off" },
       ],
+      materials: [
+        { materialId: 1, name: "Barang A" },
+        { materialId: 2, name: "Barang B" },
+        { materialId: 3, name: "Barang C" },
+      ], // Contoh daftar material
     };
   },
   methods: {
-    handleFileUpload(event) {
-      this.file = event.target.files[0]; // Menggunakan this.file agar konsisten
-    },
-    
     // Fungsi untuk mengambil data nama karyawan berdasarkan userId
     async fetchEmployeeName() {
       if (this.userId) {
@@ -102,8 +116,9 @@ export default {
     
     async submitSPK() {
       const formData = new FormData();
-      formData.append("user", this.userId);
-      formData.append("file", this.nama_barang);
+      formData.append("userId", this.userId);
+      formData.append("materialId", this.materialId);
+      formData.append("quantityOrder", this.quantityOrder);
       formData.append("tanggal_pengajuan", this.tanggal_pengajuan);
       formData.append("penerima", this.penerima);
 
@@ -123,7 +138,8 @@ export default {
 
       // Reset form fields after submission
       this.userId = "";
-      this.file = null;
+      this.materialId = "";
+      this.quantityOrder = 1;
       this.tanggal_pengajuan = "";
       this.penerima = "";
       this.employeeName = "";  // Reset nama karyawan setelah submit
@@ -131,6 +147,7 @@ export default {
   },
 };
 </script>
+
 <style scoped>
 .container {
   max-width: 100%;

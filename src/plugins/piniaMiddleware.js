@@ -3,10 +3,8 @@ export function createPiniaMiddleware() {
     context.store.$onAction(({ name, store, args, after, onError }) => {
       console.log(`Action "${name}" in store "${store.$id}" with args:`, args);
 
-      // Menghapus proteksi berdasarkan role
       const protectedActions = ["addItem", "updateItem", "deleteItem"];
 
-      // Proteksi role dihapus sehingga semua user dapat melakukan action apa pun
       if (protectedActions.includes(name)) {
         console.log(`Action "${name}" executed without role restriction.`);
       }

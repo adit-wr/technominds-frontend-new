@@ -9,7 +9,7 @@
           </button>
         </div>
       </div>
-      
+
       <div class="table-responsive" id="print-section">
         <table class="modern-table">
           <thead>
@@ -37,11 +37,11 @@
                 <div class="text-muted">{{ history.nama_barang }}</div>
               </td>
               <td>
-                <div class="text-muted">{{ history.quantity }}</div>
+                <div class="text-muted">{{ history.quantityOrder }}</div>
               </td>
               <td>
-                <span 
-                  class="badge" 
+                <span
+                  class="badge"
                   :class="getStatusClass(history.status)"
                 >
                   {{ history.status }}
@@ -57,50 +57,97 @@
 
 <script>
 import axios from "axios";
-import { useAuthStore } from "@/store/authStore"; 
+import { useAuthStore } from "@/store/authStore";
 
 export default {
-  name: "spkTable",
+  name: "RiwayatSPK",
   data() {
     return {
-      spk: [], 
+      spk: [],
     };
   },
   methods: {
-    fetchMaterials() {
-      const authStore = useAuthStore(); 
+    // Fetch nama karyawan berdasarkan userId
+    async fetchUserDetails(userId) {
+      try {
+        const response = await axios.get(`http://localhost:3000/api/user/${userId}`, {
+          headers: {
+            Authorization: `Bearer ${useAuthStore().token}`,
+          },
+        });
+        return response.data.username; // Return username
+      } catch {
+        return 'Unknown User';
+      }
+    },
+
+    // Fetch nama barang berdasarkan materialId
+    async fetchMaterialDetails(materialId) {
+      try {
+        const response = await axios.get(`http://localhost:3000/api/materials/${materialId}`, {
+          headers: {
+            Authorization: `Bearer ${useAuthStore().token}`,
+          },
+        });
+        return response.data.name || 'N/A'; // Return nama barang
+      } catch {
+        return 'N/A';
+      }
+    },
+
+    // Fetch data SPK dan menambahkan nama karyawan dan nama barang
+    async fetchMaterials() {
+      const authStore = useAuthStore();
       if (!authStore.token) {
         console.error("Token kosong! Tidak dapat melakukan permintaan API.");
         return;
       }
-
-      axios
-        .get("http://localhost:3000/api/spk", {
+      console.log("Authorization Header:", `Bearer ${authStore.token}`);
+      try {
+        const response = await axios.get("http://localhost:3000/api/spk", {
           headers: {
-            Authorization: `Bearer ${authStore.token}`, 
+            Authorization: `Bearer ${authStore.token}`,
           },
-        })
-        .then((response) => {
-          this.spk = response.data; 
-        })
-        .catch((error) => {
-          console.error("Error fetching materials:", error);
         });
+
+        // Gunakan Promise.all untuk menunggu semua request nama karyawan dan nama barang selesai
+        const spkWithNames = await Promise.all(response.data.map(async (item) => {
+          const namaKaryawan = await this.fetchUserDetails(item.userId); // Tunggu nama karyawan
+          const namaBarang = await this.fetchMaterialDetails(item.materialId); // Tunggu nama barang
+          return {
+            spkId: item.spkId,
+            nama_karyawan: namaKaryawan, // Update dengan nama karyawan
+            tanggal_pengajuan: new Date(item.tanggal_pengajuan).toLocaleDateString(),
+            nama_barang: namaBarang, // Update dengan nama barang
+            quantityOrder: item.quantityOrder,
+            status: item.status,
+          };
+        }));
+
+        this.spk = spkWithNames; // Update spk dengan data baru
+      } catch (error) {
+        console.error("Error fetching SPK:", error);
+      }
     },
-    
-    // Fungsi untuk mendapatkan kelas berdasarkan status
+
+    // Mendapatkan kelas CSS berdasarkan status SPK
     getStatusClass(status) {
       switch (status) {
-        case 'Approved':
-          return 'badge-success';  // Status approved
-        case 'Pending':
-          return 'badge-warning';  // Status pending
-        case 'Rejected':
-          return 'badge-danger';  // Status rejected
+        case "DONE":
+          return "badge-success";
+        case "PENDING":
+          return "badge-warning";
+        case "ON_PROCESS":
+          return "badge-danger";
         default:
-          return '';  // Default jika status tidak dikenali
+          return "";
       }
-    }
+    },
+
+    // Cetak tabel sebagai laporan
+    print() {
+      window.print();
+    },
   },
   mounted() {
     this.fetchMaterials(); 
@@ -109,6 +156,7 @@ export default {
 </script>
 
 <style scoped>
+/* Tambahkan CSS lengkap dari kode sebelumnya */
 .history-container {
   background-color: #f4f7fa;
   padding: 20px;
@@ -183,19 +231,6 @@ export default {
   color: #212529;
 }
 
-.btn-download {
-  color: #007bff;
-  text-decoration: none;
-  display: flex;
-  align-items: center;
-  font-weight: 500;
-  transition: color 0.2s ease;
-}
-
-.btn-download:hover {
-  color: #0056b3;
-}
-
 .badge {
   padding: 0.4em 0.7em;
   border-radius: 4px;
@@ -234,27 +269,6 @@ export default {
     left: 0;
     top: 0;
     width: 100%;
-  }
-}
-
-/* Responsive Adjustments */
-@media (max-width: 768px) {
-  .card-header {
-    flex-direction: column;
-    gap: 15px;
-  }
-
-  .header-actions {
-    width: 100%;
-  }
-
-  .print-btn {
-    width: 100%;
-    justify-content: center;
-  }
-
-  .modern-table {
-    font-size: 0.9rem;
   }
 }
 </style>
