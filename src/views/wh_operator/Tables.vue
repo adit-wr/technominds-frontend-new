@@ -61,7 +61,7 @@ async function handleSubmit(item) {
     alert(isEdit.value ? "Data berhasil diperbarui!" : "Data berhasil ditambahkan!");
   } catch (error) {
     console.error("Error saving material:", error);
-    alert("Terjadi kesalahan saat menyimpan data.");
+    // alert("Terjadi kesalahan saat menyimpan data.");
   } finally {
     isLoading.value = false;
     closeForm();
