@@ -5,7 +5,6 @@ import FormMasterData from "@/views/wh_operator/FormMasterData.vue";
 import axios from "axios";
 import { useAuthStore } from "@/store/authStore";
 
-// State untuk daftar materials dan kontrol UI
 const materials = ref([]);
 const isLoading = ref(false);
 const showForm = ref(false);
@@ -18,7 +17,6 @@ const selectedItem = reactive({
 });
 const isEdit = ref(false);
 
-// Fungsi untuk mengambil data materials dari API
 function fetchMaterials() {
   isLoading.value = true;
   const authStore = useAuthStore();
@@ -40,41 +38,51 @@ function fetchMaterials() {
     });
 }
 
-// Fungsi untuk menambahkan atau mengedit material
-function handleSubmit(item) {
-  if (isEdit.value) {
-    const index = materials.value.findIndex(
-      (i) => i.materialId === item.materialId
-    );
-    if (index !== -1) {
-      materials.value.splice(index, 1, item); 
+async function handleSubmit(item) {
+  const authStore = useAuthStore();
+  isLoading.value = true;
+
+  try {
+    if (isEdit.value) {
+      await axios.put(
+        `http://localhost:3000/api/materials/${item.materialId}`,
+        item,
+        {
+          headers: { Authorization: `Bearer ${authStore.token}` },
+        }
+      );
+    } else {
+      await axios.post("http://localhost:3000/api/materials", item, {
+        headers: { Authorization: `Bearer ${authStore.token}` },
+      });
     }
-  } else {
-    item.materialId = Date.now(); 
-    materials.value.push(item); 
+
+    await fetchMaterials(); // Sinkronisasi ulang data
+    alert(isEdit.value ? "Data berhasil diperbarui!" : "Data berhasil ditambahkan!");
+  } catch (error) {
+    console.error("Error saving material:", error);
+    alert("Terjadi kesalahan saat menyimpan data.");
+  } finally {
+    isLoading.value = false;
+    closeForm();
   }
-  closeForm();
 }
 
-// Fungsi untuk menghapus material
+
 function deleteItem(materialId) {
   const authStore = useAuthStore();
-  
   if (!authStore.token) {
     console.error("Token kosong! Tidak dapat melakukan permintaan API.");
     return;
   }
 
   isLoading.value = true;
-  
+
   axios
     .delete(`http://localhost:3000/api/materials/${materialId}`, {
-      headers: {
-        Authorization: `Bearer ${authStore.token}`,
-      },
+      headers: { Authorization: `Bearer ${authStore.token}` },
     })
     .then(() => {
-      // Filter daftar materials untuk menghapus item yang sesuai
       materials.value = materials.value.filter(
         (item) => item.materialId !== materialId
       );
@@ -89,7 +97,6 @@ function deleteItem(materialId) {
     });
 }
 
-// Fungsi untuk membuka form tambah/edit
 function showAddForm() {
   Object.assign(selectedItem, {
     materialId: "",
@@ -108,7 +115,6 @@ function editItem(item) {
   showForm.value = true;
 }
 
-// Fungsi untuk menutup form
 function closeForm() {
   showForm.value = false;
   isEdit.value = false;
@@ -121,7 +127,6 @@ function closeForm() {
   });
 }
 
-// Konfirmasi sebelum menghapus item
 function confirmDeleteItem(item) {
   const isConfirmed = window.confirm(
     `Apakah Anda yakin ingin menghapus item "${item.name}"?`
@@ -131,9 +136,9 @@ function confirmDeleteItem(item) {
   }
 }
 
-// Ambil data saat komponen di-mount
 fetchMaterials();
 </script>
+
 
 
 <template>
