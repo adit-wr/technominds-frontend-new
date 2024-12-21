@@ -1,8 +1,7 @@
 <template>
   <div>
     <router-view></router-view>
-    <!-- Tempat untuk memuat child routes -->
-
+    
     <!-- Daftar fitur khusus untuk PH Operator -->
     <ul>
       

@@ -9,7 +9,7 @@
           </button>
         </div>
       </div>
-      
+
       <div class="table-responsive" id="print-section">
         <table class="modern-table">
           <thead>
@@ -17,35 +17,30 @@
               <th>ID</th>
               <th>Nama Karyawan</th>
               <th>Tanggal Pengajuan</th>
-              <th>SPK</th>
+              <th>Nama Barang</th>
+              <th>Quantity</th>
               <th>Status</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="history in histories" :key="history.id">
+            <tr v-for="history in spk" :key="history.spkId">
               <td>
-                <span class="text-muted">#{{ history.id }}</span>
+                <span class="text-muted">#{{ history.spkId }}</span>
               </td>
               <td>
-                <div class="employee-name">{{ history.namaKaryawan }}</div>
+                <div class="employee-name">{{ history.nama_karyawan }}</div>
               </td>
               <td>
-                <div class="text-muted">{{ formatDate(history.tanggalPengajuan) }}</div>
+                <div class="text-muted">{{ history.tanggal_pengajuan }}</div>
               </td>
               <td>
-                <a 
-                  :href="history.spkLink" 
-                  target="_blank" 
-                  class="btn-download"
-                >
-                  <i class="bi bi-download me-2"></i>Unduh SPK
-                </a>
+                <div class="text-muted">{{ history.nama_barang }}</div>
               </td>
               <td>
-                <span 
-                  class="badge" 
-                  :class="getStatusClass(history.status)"
-                >
+                <div class="text-muted">{{ history.quantity }}</div>
+              </td>
+              <td>
+                <span class="badge" :class="getStatusClass(history.status)">
                   {{ history.status }}
                 </span>
               </td>
@@ -58,61 +53,46 @@
 </template>
 
 <script>
+import axios from "axios";
+import { useAuthStore } from "@/store/authStore";
+
 export default {
-  name: "HistoryList",
+  name: "spkTable",
   data() {
     return {
-      histories: [
-        {
-          id: 1,
-          namaKaryawan: "Doni Monardo",
-          tanggalPengajuan: "2024-01-01",
-          spkLink: "https://drive.google.com/file/d/1eE_L0n1G8gc66qSkm6UtCsBocnFc78_j/view?usp=sharing",
-          status: "Done",
-        },
-        {
-          id: 2,
-          namaKaryawan: "Siti Rahayu",
-          tanggalPengajuan: "2024-01-02",
-          spkLink: "https://drive.google.com/file/d/1eE_L0n1G8gc66qSkm6UtCsBocnFc78_j/view?usp=sharing",
-          status: "Pending",
-        },
-        {
-          id: 3,
-          namaKaryawan: "Ahmad Rifai",
-          tanggalPengajuan: "2024-01-03",
-          spkLink: "https://drive.google.com/file/d/1eE_L0n1G8gc66qSkm6UtCsBocnFc78_j/view?usp=sharing",
-          status: "Rejected",
-        },
-        {
-          id: 4,
-          namaKaryawan: "Budi Hartono",
-          tanggalPengajuan: "2024-01-04",
-          spkLink: "https://drive.google.com/file/d/1eE_L0n1G8gc66qSkm6UtCsBocnFc78_j/view?usp=sharing",
-          status: "Done",
-        },
-      ],
+      spk: [],
     };
   },
   methods: {
-    print() {
-      window.print();
-    },
-    formatDate(dateString) {
-      const options = { 
-        year: 'numeric', 
-        month: 'long', 
-        day: 'numeric' 
-      };
-      return new Date(dateString).toLocaleDateString('id-ID', options);
+    fetchMaterials() {
+      const authStore = useAuthStore();
+      if (!authStore.token) {
+        console.error("Token kosong! Tidak dapat melakukan permintaan API.");
+        return;
+      }
+
+      axios
+        .get("http://localhost:3000/api/spk", {
+          headers: {
+            Authorization: `Bearer ${authStore.token}`,
+          },
+        })
+        .then((response) => {
+          this.spk = response.data;
+        })
+        .catch((error) => {
+          console.error("Error fetching materials:", error);
+        });
     },
     getStatusClass(status) {
-      return {
-        'badge-success': status.toLowerCase() === 'done',
-        'badge-warning': status.toLowerCase() === 'pending',
-        'badge-danger': status.toLowerCase() === 'rejected'
-      };
-    }
+      if (status === "SUCCESS") return "badge-success";
+      if (status === "PENDING") return "badge-warning";
+      if (status === "FAILED") return "badge-danger";
+      return "";
+    },
+  },
+  mounted() {
+    this.fetchMaterials();
   },
 };
 </script>

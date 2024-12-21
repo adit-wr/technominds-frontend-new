@@ -1,6 +1,7 @@
 <template>
   <div>
     <form @submit.prevent="submitForm">
+      <h2>{{ formTitle }}</h2>
       <table>
         <tbody>
           <tr>
@@ -8,17 +9,17 @@
             <td>
               <input
                 type="text"
-                v-model="material.materialId"
+                v-model="form.materialId"
                 id="materialId"
                 :disabled="isEdit"
                 required
               />
-            </td> 
+            </td>
           </tr>
           <tr>
             <td>Nama Barang</td>
             <td>
-              <input type="text" v-model="material.name" id="name" required />
+              <input type="text" v-model="form.name" id="name" required />
             </td>
           </tr>
           <tr>
@@ -26,7 +27,7 @@
             <td>
               <input
                 type="text"
-                v-model="material.descriptions"
+                v-model="form.descriptions"
                 id="descriptions"
                 required
               />
@@ -37,8 +38,9 @@
             <td>
               <input
                 type="number"
-                v-model="material.quantity"
+                v-model="form.quantity"
                 id="quantity"
+                min="0"
                 required
               />
             </td>
@@ -46,7 +48,7 @@
           <tr>
             <td>Status</td>
             <td>
-              <select v-model="material.status" id="status" required>
+              <select v-model="form.status" id="status" required>
                 <option value="AVAILABLE">Available</option>
                 <option value="UNAVAILABLE">Unavailable</option>
               </select>
@@ -95,25 +97,36 @@ export default {
   },
   data() {
     return {
-      material: { ...this.item },  
+      form: {
+        materialId: "",
+        name: "",
+        descriptions: "",
+        quantity: 0,
+        status: "AVAILABLE",
+      },
     };
   },
   watch: {
+    // Mengisi form ketika `item` berubah
     item: {
       immediate: true,
       handler(newItem) {
-        if (newItem) {
-          this.material = { ...newItem };  
+        if (newItem && newItem.materialId) {
+          this.form = { ...newItem };
         } else {
-          this.resetForm();  
+          this.resetForm();
         }
       },
     },
   },
+  computed: {
+    formTitle() {
+      return this.isEdit ? "Edit Barang" : "Tambah Barang";
+    },
+  },
   methods: {
-    // Reset material ke nilai default
     resetForm() {
-      this.material = {
+      this.form = {
         materialId: "",
         name: "",
         descriptions: "",
@@ -121,7 +134,6 @@ export default {
         status: "AVAILABLE",
       };
     },
-    // Method untuk menangani form submission (tambah/edit data)
     async submitForm() {
       const authStore = useAuthStore();
       const token = authStore.token;
@@ -133,62 +145,39 @@ export default {
 
       try {
         if (this.isEdit) {
-          // API untuk update data
+          // PUT request untuk edit data
           await axios.put(
-            `http://localhost:3000/api/materials/${this.material.materialId}`,
-            this.material,
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            }
+            `http://localhost:3000/api/materials/${this.form.materialId}`, // Perbaikan di sini
+            this.form,
+            { headers: { Authorization: `Bearer ${token}` } }
           );
           alert("Data berhasil diperbarui!");
         } else {
-          // API untuk tambah data baru
-          await axios.post("http://localhost:3000/api/materials", this.material, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
+          // POST request untuk tambah data baru
+          await axios.post("http://localhost:3000/api/materials", this.form, {
+            headers: { Authorization: `Bearer ${token}` },
           });
           alert("Data berhasil ditambahkan!");
         }
 
-        // Emit data yang telah disubmit ke parent component
-        this.$emit("submit", this.material);
-        this.resetForm(); // Reset form setelah submit
-
-        // Panggil fetchMaterials untuk memuat data setelah operasi selesai
-        this.fetchMaterials();
+        // Emit event submit ke parent
+        this.$emit("submit", this.form);
+        this.resetForm();
       } catch (error) {
-        console.error("Terjadi kesalahan saat menyimpan data:", error);
-        alert("Gagal menyimpan data. Silakan coba lagi!");
-      }
-    },
-
-    // Method untuk mengambil data material setelah operasi
-    async fetchMaterials() {
-      const authStore = useAuthStore();
-      if (!authStore.token) {
-        console.error("Token kosong! Tidak dapat melakukan permintaan API.");
-        return;
-      }
-
-      try {
-        const response = await axios.get("http://localhost:3000/api/materials", {
-          headers: {
-            Authorization: `Bearer ${authStore.token}`,
-          },
-        });
-        console.log("Data bahan material:", response.data);
-        // Tangani data yang didapatkan, misalnya dengan mengupdate state
-      } catch (error) {
-        console.error("Terjadi kesalahan saat mengambil data:", error);
+        console.error("Gagal menyimpan data:", error);
+        alert(
+          error.response?.data?.message ||
+            "Terjadi kesalahan, silakan coba lagi!"
+        );
       }
     },
   },
 };
 </script>
+
+<style scoped>
+/* Tambahkan CSS sesuai kebutuhan */
+</style>
 
 <style scoped>
 table {

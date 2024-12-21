@@ -47,11 +47,11 @@ function handleSubmit(item) {
       (i) => i.materialId === item.materialId
     );
     if (index !== -1) {
-      materials.value.splice(index, 1, item); // Update item yang ada
+      materials.value.splice(index, 1, item); 
     }
   } else {
-    item.materialId = Date.now(); // Buat ID baru
-    materials.value.push(item); // Tambahkan item baru
+    item.materialId = Date.now(); 
+    materials.value.push(item); 
   }
   closeForm();
 }
@@ -227,6 +227,7 @@ fetchMaterials();
     <ModalApp v-model:visible="showForm">
       <FormMasterData
         :material="selectedItem"
+        :item="selectedItem"
         :isEdit="isEdit"
         @submit="handleSubmit"
         @cancel="closeForm"

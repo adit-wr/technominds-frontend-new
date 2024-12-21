@@ -12,30 +12,44 @@
             <input
               type="text"
               class="form-control"
-              v-model="localItem.namaKaryawan"
+              v-model="localItem.nama_karyawan"
               disabled
             />
-          </div>
-          <div class="form-group">
-            <label for="spk">Surat Perintah Kerja (SPK)</label><br>
-            <a :href="localItem.spk" target="_blank" class="btn btn-link"><i class="bi bi-download"></i> Download PDF</a>
           </div>
           <div class="form-group">
             <label for="tanggalPengajuan">Tanggal Pengajuan</label>
             <input
               type="text"
               class="form-control"
-              v-model="localItem.tanggalPengajuan"
+              v-model="localItem.tanggal_pengajuan"
               disabled
             />
           </div>
           <div class="form-group">
             <label for="status">Status</label>
             <select v-model="localItem.status" class="form-control">
-              <option value="Pending">Pending</option>
-              <option value="On Process">On Process</option>
-              <option value="Done">Done</option>
+              <option value="PENDING">Pending</option>
+              <option value="ON_PROCESS">On Process</option>
+              <option value="DONE">Done</option>
             </select>
+          </div>
+          <div class="form-group">
+            <label for="namaBarang">Nama Barang</label>
+            <input
+              type="text"
+              class="form-control"
+              v-model="localItem.nama_barang"
+              disabled
+            />
+          </div>
+          <div class="form-group">
+            <label for="quantity">Quantity</label>
+            <input
+              type="number"
+              class="form-control"
+              v-model="localItem.quantity"
+              disabled
+            />
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" @click="close">

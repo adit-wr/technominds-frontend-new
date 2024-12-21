@@ -8,27 +8,37 @@
         <table class="table table-hover table-striped">
           <thead>
             <tr>
-              <th>Id</th>
+              <th>SPK ID</th>
               <th>Nama Karyawan</th>
-              <th>SPK</th>
+              <th>Nama Barang</th>
+              <th>Quantity</th>
               <th>Tanggal Pengajuan</th>
               <th>Status</th>
               <th>Aksi</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="item in tableData" :key="item.id">
-              <td>{{ item.id }}</td>
-              <td>{{ item.namaKaryawan }}</td>
+            <tr v-for="item in tableData" :key="item.spkId">
+              <td>{{ item.spkId }}</td>
+              <td>{{ item.nama_karyawan }}</td>
+              <td>{{ item.nama_barang }}</td>
+              <td>{{ item.quantity }}</td>
+              <td>{{ formatTanggal(item.tanggal_pengajuan) }}</td>
               <td>
-                <a :href="item.spk" target="_blank">Download PDF</a>
+                <span
+                  :class="{
+                    'badge badge-success': item.status === 'DONE',
+                    'badge badge-warning': item.status === 'PENDING',
+                  }"
+                >
+                  {{ item.status }}
+                </span>
               </td>
-              <td>{{ item.tanggalPengajuan }}</td>
-              <td>{{ item.status }}</td>
               <td>
                 <button
                   class="btn btn-primary btn-sm"
                   @click="openForm(item)"
+                  v-if="item.status === 'PENDING'"
                 >
                   <i class="bi bi-pencil-square"></i> Terima
                 </button>
@@ -63,25 +73,31 @@ export default {
       selectedItem: null, // Item yang dipilih
       tableData: [
         {
-          id: 1,
-          namaKaryawan: "John Doe",
-          spk: "https://drive.google.com/file/d/1eE_L0n1G8gc66qSkm6UtCsBocnFc78_j/view?usp=sharing",
-          tanggalPengajuan: "2024-11-01",
-          status: "On Process",
+          spkId: 1,
+          nama_karyawan: "John Doe",
+          tanggal_pengajuan: "2024-11-01",
+          penerima: "Admin WH",
+          nama_barang: "Barang A",
+          quantity: 10,
+          status: "PENDING",
         },
         {
-          id: 2,
-          namaKaryawan: "Jane Smith",
-          spk: "https://drive.google.com/file/d/1eE_L0n1G8gc66qSkm6UtCsBocnFc78_j/view?usp=sharing",
-          tanggalPengajuan: "2024-11-02",
-          status: "On Process",
+          spkId: 2,
+          nama_karyawan: "Jane Smith",
+          tanggal_pengajuan: "2024-11-02",
+          penerima: "Admin WH",
+          nama_barang: "Barang B",
+          quantity: 5,
+          status: "PENDING",
         },
         {
-          id: 3,
-          namaKaryawan: "Michael Johnson",
-          spk: "https://drive.google.com/file/d/1eE_L0n1G8gc66qSkm6UtCsBocnFc78_j/view?usp=sharing",
-          tanggalPengajuan: "2024-11-03",
-          status: "Done",
+          spkId: 3,
+          nama_karyawan: "Michael Johnson",
+          tanggal_pengajuan: "2024-11-03",
+          penerima: "Admin WH",
+          nama_barang: "Barang C",
+          quantity: 15,
+          status: "DONE",
         },
       ],
     };
@@ -97,11 +113,19 @@ export default {
     },
     updateStatus(updatedItem) {
       // Perbarui status item di tableData
-      const index = this.tableData.findIndex((item) => item.id === updatedItem.id);
+      const index = this.tableData.findIndex((item) => item.spkId === updatedItem.spkId);
       if (index !== -1) {
         this.tableData[index].status = updatedItem.status;
       }
       this.closeForm(); // Tutup modal
+    },
+    formatTanggal(tanggal) {
+      const date = new Date(tanggal);
+      return date.toLocaleDateString("id-ID", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
     },
   },
 };
@@ -191,4 +215,3 @@ export default {
   }
 }
 </style>
- 

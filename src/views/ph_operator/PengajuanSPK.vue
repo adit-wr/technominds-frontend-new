@@ -18,11 +18,11 @@
           <!-- Menampilkan nama karyawan -->
         </div>
         <div class="mb-3">
-          <label for="spkFile" class="form-label">Upload SPK</label>
+          <label for="spkFile" class="form-label">Nama Barang</label>
           <input
-            type="file"
+            type="nama_barang"
             class="form-control"
-            id="file"
+            id="nama_barang"
             @change="handleFileUpload"
             required
           />
@@ -65,7 +65,7 @@ export default {
   data() {
     return {
       userId: "",
-      file: null,
+      nama_barang: "",
       tanggal_pengajuan: "",
       penerima: "",
       employeeName: "",  // Untuk menyimpan nama karyawan
@@ -103,7 +103,7 @@ export default {
     async submitSPK() {
       const formData = new FormData();
       formData.append("user", this.userId);
-      formData.append("file", this.file);
+      formData.append("file", this.nama_barang);
       formData.append("tanggal_pengajuan", this.tanggal_pengajuan);
       formData.append("penerima", this.penerima);
 

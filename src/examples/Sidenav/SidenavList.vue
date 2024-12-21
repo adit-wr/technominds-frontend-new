@@ -43,7 +43,6 @@ const getRoute = () => route.name;
       id="sidenav-collapse-main"
     >
       <ul class="navbar-nav">
-        <!-- Dashboard (Tampil untuk semua role) -->
         <!-- Menu untuk WH Operator -->
         <template v-if="userRole === 'WH_OPERATOR'">
           <li class="nav-item">
@@ -153,35 +152,7 @@ const getRoute = () => route.name;
         </template>
 
         <!-- Menu Akun (Tampil untuk semua role) -->
-        <li class="mt-3 nav-item">
-          <h6
-            class="text-xs ps-4 text-uppercase font-weight-bolder opacity-6 ms-2"
-          >
-            ACCOUNT PAGES
-          </h6>
-        </li>
-        <li class="nav-item">
-          <sidenav-item
-            to="/login"
-            :class="getRoute() === 'login' ? 'active' : ''"
-            navText="Sign In"
-          >
-            <template v-slot:icon
-              ><i class="bi bi-box-arrow-in-right text-danger text-sm opacity-10"></i
-            ></template>
-          </sidenav-item>
-        </li>
-        <li class="nav-item">
-          <sidenav-item
-            to="/register"
-            :class="getRoute() === 'register' ? 'active' : ''"
-            navText="Sign up"
-          >
-            <template v-slot:icon
-              ><i class="bi bi-person-plus text-danger text-sm opacity-10"></i
-            ></template>
-          </sidenav-item>
-        </li>
+      
       </ul>
     </div>
   </aside>

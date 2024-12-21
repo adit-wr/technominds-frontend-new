@@ -96,18 +96,7 @@ onBeforeUnmount(() => {
                     >
                     <argon-input type="email" value="jesse@example.com" />
                   </div>
-                  <div class="col-md-6">
-                    <label for="firstname" class="form-control-label"
-                      >First name</label
-                    >
-                    <argon-input type="text" value="Jesse" />
-                  </div>
-                  <div class="col-md-6">
-                    <label for="lastname" class="form-control-label"
-                      >Last name</label
-                    >
-                    <argon-input type="text" value="Lucky" />
-                  </div>
+
                 </div>
               </div>
             </div>

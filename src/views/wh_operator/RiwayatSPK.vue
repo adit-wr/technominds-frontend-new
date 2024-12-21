@@ -1,43 +1,51 @@
 <template>
-  <div class="item-list">
-    <div class="card">
-      <div
-        class="card-header d-flex justify-content-between align-items-center"
-      >
-        <h2>Riwayat SPK Masuk</h2>
-        <button @click="print" class="btn btn-primary">
-          <i class="bi bi-printer"></i> Cetak Laporan
-        </button>
+  <div class="history-container">
+    <div class="card modern-card">
+      <div class="card-header">
+        <h2 class="card-title">Riwayat Pengajuan SPK</h2>
+        <div class="header-actions">
+          <button @click="print" class="btn btn-primary print-btn">
+            <i class="bi bi-printer me-2"></i>Cetak Laporan
+          </button>
+        </div>
       </div>
-      <div class="card-body" id="print-section">
-        <table class="table table-bordered">
+      
+      <div class="table-responsive" id="print-section">
+        <table class="modern-table">
           <thead>
             <tr>
-              <th>No</th>
+              <th>ID</th>
               <th>Nama Karyawan</th>
               <th>Tanggal Pengajuan</th>
+              <th>Nama Barang</th>
+              <th>Quantity</th>
               <th>Status</th>
-              <th>SPK</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(item, index) in riwayat" :key="item.id">
-              <td>{{ index + 1 }}</td>
-              <td>{{ item.name }}</td>
-              <td>{{ item.tanggal }}</td>
+            <tr v-for="history in spk" :key="history.spkId">
               <td>
-                <span
-                  class="badge"
-                  :class="{
-                    'badge-success': item.status === 'done',
-                    'badge-warning': item.status === 'pending',
-                  }"
-                >
-                  {{ item.status }}
-                </span>
+                <span class="text-muted">#{{ history.spkId }}</span>
               </td>
               <td>
-                <a :href="item.pdfLink" target="_blank">Unduh PDF</a>
+                <div class="employee-name">{{ history.nama_karyawan }}</div>
+              </td>
+              <td>
+                <div class="text-muted">{{ history.tanggal_pengajuan }}</div>
+              </td>
+              <td>
+                <div class="text-muted">{{ history.nama_barang }}</div>
+              </td>
+              <td>
+                <div class="text-muted">{{ history.quantity }}</div>
+              </td>
+              <td>
+                <span 
+                  class="badge" 
+                  :class="getStatusClass(history.status)"
+                >
+                  {{ history.status }}
+                </span>
               </td>
             </tr>
           </tbody>
@@ -48,97 +56,171 @@
 </template>
 
 <script>
+import axios from "axios";
+import { useAuthStore } from "@/store/authStore"; 
+
 export default {
+  name: "spkTable",
   data() {
     return {
-      riwayat: [
-        { id: 1, name: "Budi", tanggal: "2024-01-01", status: "done", pdfLink: "/path/to/pdf1.pdf" },
-        { id: 2, name: "Andi", tanggal: "2024-01-02", status: "done", pdfLink: "/path/to/pdf2.pdf" },
-        { id: 3, name: "Dodi", tanggal: "2024-01-03", status: "done", pdfLink: "/path/to/pdf3.pdf" },
-        { id: 4, name: "Krisna", tanggal: "2024-01-04", status: "done", pdfLink: "/path/to/pdf4.pdf" },
-        { id: 5, name: "Asep", tanggal: "2024-01-05", status: "done", pdfLink: "/path/to/pdf5.pdf" },
-        { id: 6, name: "Wulan", tanggal: "2024-01-06", status: "done", pdfLink: "/path/to/pdf6.pdf" },
-        { id: 7, name: "Aisyah", tanggal: "2024-01-07", status: "done", pdfLink: "/path/to/pdf7.pdf" },
-      ],
+      spk: [], 
     };
   },
   methods: {
-    print() {
-      window.print();
+    fetchMaterials() {
+      const authStore = useAuthStore(); 
+      if (!authStore.token) {
+        console.error("Token kosong! Tidak dapat melakukan permintaan API.");
+        return;
+      }
+
+      axios
+        .get("http://localhost:3000/api/spk", {
+          headers: {
+            Authorization: `Bearer ${authStore.token}`, 
+          },
+        })
+        .then((response) => {
+          this.spk = response.data; 
+        })
+        .catch((error) => {
+          console.error("Error fetching materials:", error);
+        });
     },
+    
+    // Fungsi untuk mendapatkan kelas berdasarkan status
+    getStatusClass(status) {
+      switch (status) {
+        case 'Approved':
+          return 'badge-success';  // Status approved
+        case 'Pending':
+          return 'badge-warning';  // Status pending
+        case 'Rejected':
+          return 'badge-danger';  // Status rejected
+        default:
+          return '';  // Default jika status tidak dikenali
+      }
+    }
+  },
+  mounted() {
+    this.fetchMaterials(); 
   },
 };
 </script>
 
 <style scoped>
-.item-list {
-  width: 100%;
+.history-container {
+  background-color: #f4f7fa;
+  padding: 20px;
 }
 
-/* Tabel styling */
-.table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+.modern-card {
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border: none;
+  overflow: hidden;
 }
 
-.table th {
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
   background-color: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.card-title {
+  margin-bottom: 0;
+  font-weight: 600;
+  color: #333;
+  font-size: 1.25rem;
+}
+
+.print-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.modern-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.modern-table thead {
+  background-color: #f1f3f5;
+}
+
+.modern-table thead th {
+  padding: 15px;
+  text-align: left;
+  color: #495057;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.modern-table tbody tr {
+  transition: background-color 0.2s ease;
+}
+
+.modern-table tbody tr:hover {
+  background-color: rgba(0, 123, 255, 0.05);
+}
+
+.modern-table tbody td {
+  padding: 15px;
+  vertical-align: middle;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.employee-name {
+  font-weight: 600;
   color: #212529;
-  text-align: center;
-  font-weight: bold;
-  padding: 10px;
-  border: 1px solid #dee2e6;
 }
 
-.table td {
-  text-align: center;
-  padding: 10px;
-  border: 1px solid #dee2e6;
-}
-
-.table tbody tr:nth-child(odd) {
-  background-color: #ffffff;
-}
-
-.table tbody tr:nth-child(even) {
-  background-color: #f8f9fa;
-}
-
-.table tbody tr:hover {
-  background-color: #e9ecef;
-  cursor: pointer;
-}
-
-.table a {
-  text-decoration: none;
+.btn-download {
   color: #007bff;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+  transition: color 0.2s ease;
 }
 
-.table a:hover {
-  text-decoration: underline;
+.btn-download:hover {
+  color: #0056b3;
 }
 
-/* Badge styling */
 .badge {
-  display: inline-block;
-  padding: 5px 10px;
-  font-size: 12px;
-  font-weight: bold;
-  color: white;
-  border-radius: 5px;
+  padding: 0.4em 0.7em;
+  border-radius: 4px;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.5px;
 }
 
 .badge-success {
-  background-color: #28a745;
+  background-color: rgba(40, 167, 69, 0.1);
+  color: #28a745;
 }
 
 .badge-warning {
-  background-color: #ffc107;
+  background-color: rgba(255, 193, 7, 0.1);
+  color: #ffc107;
 }
 
-/* Style untuk tampilan print */
+.badge-danger {
+  background-color: rgba(220, 53, 69, 0.1);
+  color: #dc3545;
+}
+
+/* Print Styles */
 @media print {
   body * {
     visibility: hidden;
@@ -151,6 +233,28 @@ export default {
     position: absolute;
     left: 0;
     top: 0;
+    width: 100%;
+  }
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .card-header {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .header-actions {
+    width: 100%;
+  }
+
+  .print-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .modern-table {
+    font-size: 0.9rem;
   }
 }
 </style>
