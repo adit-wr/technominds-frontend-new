@@ -59,6 +59,7 @@ const routes = [
     component: PhOperatorView,
     children: [
       { path: "master-data", component: () => import("../views/ph_operator/MasterData.vue") },
+      { path: "user-data", component: () => import("../views/ph_operator/UserData.vue") },
       { path: "pengajuan-spk", component: () => import("../views/ph_operator/PengajuanSPK.vue") },
       { path: "riwayat-spk", component: () => import("../views/ph_operator/RiwayatSPKPH.vue") },
     ],

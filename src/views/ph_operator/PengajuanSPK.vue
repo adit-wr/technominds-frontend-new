@@ -3,6 +3,7 @@
     <div class="card p-4 shadow-sm">
       <h2 class="text-center">Pengajuan SPK</h2>
       <form @submit.prevent="submitSPK">
+        <!-- Nama Karyawan -->
         <div class="mb-3">
           <label for="userId" class="form-label">Nama Karyawan</label>
           <input
@@ -14,8 +15,10 @@
             required
             disabled
           />
-          <small v-if="employeeName">Nama Karyawan: {{ employeeName }}</small>
+          <small v-if="employeeName">Nama Karyawan: {{ username }}</small>
         </div>
+
+        <!-- Nama Barang -->
         <div class="mb-3">
           <label for="materialId" class="form-label">Nama Barang</label>
           <select
@@ -24,11 +27,13 @@
             v-model="materialId"
             required
           >
-            <option v-for="material in materials" :key="material.materialId" :value="material.materialId">
+            <option v-for="material in materials" :key="material.id" :value="material.id">
               {{ material.name }}
             </option>
           </select>
         </div>
+
+        <!-- Jumlah Barang -->
         <div class="mb-3">
           <label for="quantityOrder" class="form-label">Jumlah Barang</label>
           <input
@@ -40,6 +45,8 @@
             min="1"
           />
         </div>
+
+        <!-- Tanggal Pengajuan -->
         <div class="mb-3">
           <label for="submissionDate" class="form-label">Tanggal</label>
           <input
@@ -50,15 +57,17 @@
             required
           />
         </div>
+
+        <!-- Penerima -->
         <div class="mb-3">
           <label for="operator" class="form-label">Penerima</label>
           <select class="form-select" v-model="penerima" required>
             <option
-              v-for="operator in operators"
-              :key="operator.name"
-              :value="operator.name"
+              v-for="operator in user"
+              :key="operator.userId"
+              :value="operator.userId"
             >
-              {{ operator.name }} || {{ operator.status }}
+              {{ operator.name }}
             </option>
           </select>
         </div>
@@ -70,80 +79,110 @@
 </template>
 
 <script>
-import axios from 'axios';
+import axios from "axios";
 
 export default {
   name: "SPKForm",
   data() {
     return {
-      userId: "",
-      materialId: "", // Menggunakan materialId yang dipilih dari dropdown
-      quantityOrder: 1, // Default quantity
-      tanggal_pengajuan: "",
-      penerima: "",
-      employeeName: "", // Untuk menyimpan nama karyawan
-      operators: [
-        { name: "Doni Monardo", status: "Free" },
-        { name: "Imelda Kartiwa", status: "Off" },
-        { name: "Intal Amelia", status: "On Duty" },
-        { name: "Jefri Ananda", status: "Off" },
-      ],
-      materials: [
-        { materialId: 1, name: "Barang A" },
-        { materialId: 2, name: "Barang B" },
-        { materialId: 3, name: "Barang C" },
-      ], // Contoh daftar material
+      userId: "", 
+      materialId: "", 
+      quantityOrder: 1, 
+      submissionDate: "", 
+      penerima: "", 
+      employeeName: "", 
+      operators: [], 
+      materials: [], 
     };
   },
   methods: {
-    // Fungsi untuk mengambil data nama karyawan berdasarkan userId
+    // Ambil nama karyawan berdasarkan userId
     async fetchEmployeeName() {
       if (this.userId) {
         try {
-          const token = localStorage.getItem('jwt_token');  // Ambil token dari localStorage
+          const token = localStorage.getItem("jwt_token");
           const response = await axios.get(`http://localhost:3000/api/user/${this.userId}`, {
             headers: {
-              'Authorization': `Bearer ${token}`,
-            }
+              Authorization: `Bearer ${token}`,
+            },
           });
-          this.employeeName = response.data.name;  // Menyimpan nama karyawan
+          this.employeeName = response.data.name || "Tidak ditemukan";
         } catch (error) {
-          console.error('Gagal mengambil data karyawan:', error);
-          this.employeeName = "";  // Jika error, reset nama karyawan
+          console.error("Gagal mengambil data karyawan:", error);
+          this.employeeName = "";
         }
       }
     },
-    
+
+    // Ambil data penerima (WH_OPERATOR) dari backend
+    async fetchOperators() {
+      try {
+        const token = localStorage.getItem("jwt_token");
+        const response = await axios.get("http://localhost:3000/api/user?role=WH_OPERATOR", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        this.operators = response.data; 
+      } catch (error) {
+        console.error("Gagal mengambil data operator:", error);
+        this.operators = [];
+      }
+    },
+
+    // Ambil data barang dari backend
+    async fetchMaterials() {
+      try {
+        const token = localStorage.getItem("jwt_token");
+        const response = await axios.get("http://localhost:3000/api/materials", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        this.materials = response.data; 
+      } catch (error) {
+        console.error("Gagal mengambil data barang:", error);
+        this.materials = [];
+      }
+    },
+
+    // Submit data SPK
     async submitSPK() {
-      const formData = new FormData();
-      formData.append("userId", this.userId);
-      formData.append("materialId", this.materialId);
-      formData.append("quantityOrder", this.quantityOrder);
-      formData.append("tanggal_pengajuan", this.tanggal_pengajuan);
-      formData.append("penerima", this.penerima);
+      const formData = {
+        userId: this.userId,
+        materialId: this.materialId,
+        quantityOrder: this.quantityOrder,
+        submissionDate: this.submissionDate,
+        penerima: this.penerima,
+      };
 
       try {
-        const token = localStorage.getItem('jwt_token');
-        const response = await axios.post('http://localhost:3000/api/spk', formData, {
+        const token = localStorage.getItem("jwt_token");
+        const response = await axios.post("http://localhost:3000/api/spk", formData, {
           headers: {
-            'Authorization': `Bearer ${token}`
-          }
+            Authorization: `Bearer ${token}`,
+          },
         });
-        console.log(response.data);
-        alert('Data berhasil disubmit!');
-      } catch (error) {
-        console.error('Terjadi kesalahan:', error);
-        alert('Gagal mengirim data.');
-      }
+        console.log("SPK berhasil disubmit:", response.data);
+        alert("Data berhasil disubmit!");
 
-      // Reset form fields after submission
-      this.userId = "";
-      this.materialId = "";
-      this.quantityOrder = 1;
-      this.tanggal_pengajuan = "";
-      this.penerima = "";
-      this.employeeName = "";  // Reset nama karyawan setelah submit
-    }
+        // Reset form setelah submit
+        this.userId = "";
+        this.materialId = "";
+        this.quantityOrder = 1;
+        this.submissionDate = "";
+        this.penerima = "";
+        this.employeeName = "";
+      } catch (error) {
+        console.error("Gagal mengirim data:", error);
+        alert("Gagal mengirim data.");
+      }
+    },
+  },
+  mounted() {
+    // Panggil data operator dan material saat komponen di-mount
+    this.fetchOperators();
+    this.fetchMaterials();
   },
 };
 </script>

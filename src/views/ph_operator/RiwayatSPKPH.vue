@@ -68,7 +68,7 @@ export default {
             Authorization: `Bearer ${useAuthStore().token}`,
           },
         });
-        return response.data.name || 'N/A'; // Return nama barang
+        return response.data.name || 'N/A'; 
       } catch {
         return 'N/A';
       }
@@ -89,19 +89,19 @@ export default {
           },
         });
 
-        // Gunakan Promise.all untuk menunggu semua request nama barang selesai
+        // menunggu semua request nama barang selesai
         const spkWithNames = await Promise.all(response.data.map(async (item) => {
-          const namaBarang = await this.fetchMaterialDetails(item.materialId); // Tunggu nama barang
+          const namaBarang = await this.fetchMaterialDetails(item.materialId); 
           return {
             spkId: item.spkId,
             tanggal_pengajuan: new Date(item.tanggal_pengajuan).toLocaleDateString(),
-            nama_barang: namaBarang, // Update dengan nama barang
+            nama_barang: namaBarang, 
             quantityOrder: item.quantityOrder,
             status: item.status,
           };
         }));
 
-        this.spk = spkWithNames; // Update spk dengan data baru
+        this.spk = spkWithNames; 
       } catch (error) {
         console.error("Error fetching SPK:", error);
       }

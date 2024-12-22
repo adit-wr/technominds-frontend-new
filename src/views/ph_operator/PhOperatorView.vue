@@ -10,6 +10,12 @@
           <MasterData />
         </div>
       </div>
+
+      <div v-if="currentComponent === 'user-data'">
+        <div class="component-container">
+          <UserData />
+        </div>
+      </div>
       
       <div v-if="currentComponent === 'Pengajuan-spk'">
         <div class="component-container">
@@ -28,6 +34,7 @@
 
 <script setup>
 import MasterData from "./MasterData.vue";
+import UserData from "./UserData.vue"
 import PengajuanSPK from "./PengajuanSPK.vue";
 import RiwayatSPKPH from "./RiwayatSPKPH.vue";
 
