@@ -16,7 +16,7 @@ const user = ref({
 // Variabel untuk menyimpan status yang baru dipilih
 const newStatus = ref('FREE');
 
-// Fungsi untuk mengambil data pengguna berdasarkan login
+// Fungsi untuk mengambil data pengguna berdasarkan login 
 const fetchUserData = async () => {
   try {
     const userId = userStore.userId;
@@ -50,7 +50,7 @@ const updateStatus = async () => {
 
     // Kirim permintaan update status
     // eslint-disable-next-line
-    const response = await axios.put(
+    const response = await axios.patch(
       `http://localhost:3000/api/user/${userId}`,
       { status: newStatus.value },
       {
