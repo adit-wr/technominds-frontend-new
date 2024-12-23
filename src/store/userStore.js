@@ -16,17 +16,7 @@ export const useUserStore = defineStore("userStore", {
       }
     },
 
-    async fetchUsersById(){
-      try {
-        const response = await apiClient.get("/users/{userId}");
-
-        this.users = response.data;
-      } catch (error) {
-        console.error("Failed to fetch users:", error);
-      }
-    },
-    },
-
+    
     async addUser(user) {
       try {
         const response = await apiClient.post("/users", user);
