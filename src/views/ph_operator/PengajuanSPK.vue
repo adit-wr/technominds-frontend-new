@@ -49,6 +49,7 @@
             <option
               v-for="operator in operators"
               :key="operator.userId"
+              :value="operator.userId"
             >
               {{ operator.username }}
             </option>
