@@ -8,6 +8,7 @@
         <table class="table modern-table">
           <thead>
             <tr>
+              <th>ID</th>
               <th>Nama</th>
               <th>Deskripsi</th>
               <th>Stok</th>
@@ -16,6 +17,9 @@
           </thead>
           <tbody>
              <tr v-for="material in materials" :key="material.materialId">
+              <td>
+                <div class="item-name">{{ material.materialId }}</div>
+              </td>
               <td>
                 <div class="item-name">{{ material.name }}</div>
               </td>

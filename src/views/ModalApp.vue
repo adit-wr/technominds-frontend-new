@@ -10,6 +10,7 @@
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
+          <h5 class="modal-title">{{ title }}</h5>
           <button
             type="button"
             class="btn-close"
@@ -17,11 +18,9 @@
             aria-label="Close"
           ></button>
         </div>
-
         <div class="modal-body">
           <slot></slot>
         </div>
-
         <div class="modal-footer">
           <button
             type="button"
@@ -43,20 +42,25 @@ export default {
       type: Boolean,
       default: false,
     },
+    title: {
+      type: String,
+      default: "Modal Title",
+    },
   },
 };
 </script>
 
 <style scoped>
+/* Modal styling */
 .modal {
   display: none;
-  background: rgba(0, 0, 0, 0.5); 
+  background: rgba(0, 0, 0, 0.5); /* Transparansi untuk latar belakang */
+  justify-content: center;
+  align-items: center;
 }
 
 .modal.show {
-  display: flex; 
-  justify-content: center;
-  align-items: center;
+  display: flex; /* Tampilkan modal ketika properti visible=true */
 }
 
 .modal-dialog {

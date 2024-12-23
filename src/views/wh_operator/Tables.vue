@@ -68,7 +68,6 @@ async function handleSubmit(item) {
   }
 }
 
-
 function deleteItem(materialId) {
   const authStore = useAuthStore();
   if (!authStore.token) {
@@ -138,8 +137,6 @@ function confirmDeleteItem(item) {
 
 fetchMaterials();
 </script>
-
-
 
 <template>
   <div class="master-data-container">

@@ -7,24 +7,30 @@
       </div>
       <div class="modal-body">
         <form @submit.prevent="submitForm">
+          <!-- Nama Karyawan (Disabled) -->
           <div class="form-group">
             <label for="namaKaryawan">Nama Karyawan</label>
             <input
               type="text"
               class="form-control"
               v-model="localItem.nama_karyawan"
-              disabled
+              placeholder="Masukkan nama karyawan"
+              :disabled="true"
             />
           </div>
+
+          <!-- Tanggal Pengajuan (Disabled) -->
           <div class="form-group">
-            <label for="tanggalPengajuan">Tanggal Pengajuan</label>
+            <label for="tanggal_pengajuan">Tanggal Pengajuan</label>
             <input
               type="text"
               class="form-control"
               v-model="localItem.tanggal_pengajuan"
-              disabled
+              :disabled="true"
             />
           </div>
+
+          <!-- Status (Editable) -->
           <div class="form-group">
             <label for="status">Status</label>
             <select v-model="localItem.status" class="form-control">
@@ -33,24 +39,32 @@
               <option value="DONE">Done</option>
             </select>
           </div>
+
+          <!-- Nama Barang (Disabled) -->
           <div class="form-group">
             <label for="namaBarang">Nama Barang</label>
             <input
               type="text"
               class="form-control"
               v-model="localItem.nama_barang"
-              disabled
+              placeholder="Masukkan nama barang"
+              :disabled="true"
             />
           </div>
+
+          <!-- Quantity (Disabled) -->
           <div class="form-group">
             <label for="quantity">Quantity</label>
             <input
               type="number"
               class="form-control"
-              v-model="localItem.quantity"
-              disabled
+              v-model="localItem.quantityOrder"
+              placeholder="Masukkan jumlah"
+              min="1"
+              :disabled="true"
             />
           </div>
+
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" @click="close">
               Batal
@@ -65,6 +79,7 @@
 
 <script setup>
 import { ref, watch } from "vue";
+import axios from "axios"; // Pastikan Anda sudah menginstal axios
 
 const props = defineProps({
   visible: Boolean,
@@ -78,7 +93,6 @@ const emit = defineEmits(["close", "updateStatus"]);
 
 const localItem = ref({ ...props.item });
 
-// Sinkronisasi data antara induk dan modal
 watch(
   () => props.item,
   (newItem) => {
@@ -91,8 +105,24 @@ const close = () => {
   emit("close");
 };
 
-const submitForm = () => {
-  emit("updateStatus", { ...localItem.value });
+const submitForm = async () => {
+  try {
+    // Kirim request untuk memperbarui status ke backend (API)
+    const response = await axios.patch(
+      `http://localhost:3000/api/spk/${localItem.value.spkId}`,
+      {
+        status: localItem.value.status,
+      }
+    );
+
+    // Jika request sukses, beri respons dan tutup modal
+    if (response.status === 200) {
+      emit("updateStatus", { ...localItem.value });
+      close(); // Tutup modal setelah update berhasil
+    }
+  } catch (error) {
+    console.error("Error updating status:", error);
+  }
 };
 </script>
 

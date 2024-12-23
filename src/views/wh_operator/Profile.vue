@@ -13,16 +13,19 @@ const user = ref({
   status: '',
 });
 
+// Variabel untuk menyimpan status yang baru dipilih
+const newStatus = ref('FREE');
+
 // Fungsi untuk mengambil data pengguna berdasarkan login
 const fetchUserData = async () => {
   try {
-    const userId = userStore.userId; // ID pengguna diambil dari Pinia store
-    const token = userStore.token; // Token autentikasi dari Pinia store
+    const userId = userStore.userId;
+    const token = userStore.token;
 
     // Kirim token dalam header Authorization
     const response = await axios.get(`http://localhost:3000/api/user/${userId}`, {
       headers: {
-        'Authorization': `Bearer ${token}`,  // Menyertakan token autentikasi
+        'Authorization': `Bearer ${token}`,
       }
     });
 
@@ -36,13 +39,31 @@ const fetchUserData = async () => {
     };
   } catch (error) {
     console.error('Error fetching user data:', error);
-    if (error.response) {
-      console.error('Response error:', error.response);
-    } else if (error.request) {
-      console.error('Request error:', error.request);
-    } else {
-      console.error('Error message:', error.message);
-    }
+  }
+};
+
+// Fungsi untuk mengupdate status
+const updateStatus = async () => {
+  try {
+    const userId = userStore.userId;
+    const token = userStore.token;
+
+    // Kirim permintaan update status
+    // eslint-disable-next-line
+    const response = await axios.put(
+      `http://localhost:3000/api/user/${userId}`,
+      { status: newStatus.value },
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      }
+    );
+
+    // Perbarui status pengguna setelah berhasil
+    user.value.status = newStatus.value;
+  } catch (error) {
+    console.error('Error updating status:', error);
   }
 };
 
@@ -56,10 +77,7 @@ onMounted(() => {
   <main>
     <div class="container-fluid">
       <!-- Header -->
-      <div
-        class="page-header min-height-300"
-        style="background-image: url('https://images.unsplash.com/photo-1531512073830-ba890ca4eba2?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80'); margin-right: -24px; margin-left: -34%;"
-      >
+      <div class="page-header min-height-300" style="background-image: url('https://images.unsplash.com/photo-1531512073830-ba890ca4eba2?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80'); margin-right: -24px; margin-left: -34%;">
         <span class="mask bg-gradient-success opacity-6"></span>
       </div>
 
@@ -78,6 +96,15 @@ onMounted(() => {
                 <p class="mb-0 font-weight-bold text-sm">{{ user.status || 'FREE' }}</p>
               </div>
             </div>
+          </div>
+          <!-- Dropdown untuk memilih status -->
+          <div class="mt-3">
+            <select v-model="newStatus" class="form-select">
+              <option value="FREE">FREE</option>
+              <option value="OFF">OFF</option>
+              <option value="ON_DUTY">ON DUTY</option>
+            </select>
+            <button class="btn btn-primary mt-3" @click="updateStatus">Update Status</button>
           </div>
         </div>
       </div>

@@ -20,37 +20,23 @@
           </thead>
           <tbody>
             <tr v-for="history in spk" :key="history.spkId">
+              <td><span class="text-muted">#{{ history.spkId }}</span></td>
+              <td><div class="employee-name">{{ history.nama_karyawan }}</div></td>
+              <td><div class="text-muted">{{ history.tanggal_pengajuan }}</div></td>
+              <td><div class="text-muted">{{ history.nama_barang }}</div></td>
+              <td><div class="text-muted">{{ history.quantityOrder }}</div></td>
               <td>
-                <span class="text-muted">#{{ history.spkId }}</span>
-              </td>
-              <td>
-                <div class="employee-name">{{ history.nama_karyawan }}</div>
-              </td>
-              <td>
-                <div class="text-muted">{{ history.tanggal_pengajuan }}</div>
-              </td>
-              <td>
-                <div class="text-muted">{{ history.nama_barang }}</div>
-              </td>
-              <td>
-                <div class="text-muted">{{ history.quantityOrder }}</div>
-              </td>
-              <td>
-                <span
-                  class="badge"
-                  :class="getStatusClass(history.status)"
-                >
+                <span class="badge" :class="getStatusClass(history.status)">
                   {{ history.status }}
                 </span>
               </td>
               <td>
-                <!-- Tombol "Terima" -->
                 <button
                   class="btn btn-success btn-sm"
-                  @click="acceptSPK(history.spkId)"
-                  :disabled="history.status === 'ON_PROCESS' || history.status === 'DONE'"
+                  @click="openModal(history)"
+                  :disabled="history.status === 'DONE'"
                 >
-                  Update SPK
+                  Terima SPK
                 </button>
               </td>
             </tr>
@@ -58,12 +44,14 @@
         </table>
       </div>
     </div>
+
+    <!-- Modal Component -->
     <ModalApp v-model:visible="showForm">
       <FormSpk
-        :spk="selectedUser"
-        :isEdit="isEdit"
-        @submit="handleSubmit"
-        @cancel="closeForm"
+        :visible="showForm"
+        :item="selectedSpk"
+        @updateStatus="handleSubmit"
+        @close="closeForm"
       />
     </ModalApp>
   </div>
@@ -72,46 +60,23 @@
 <script>
 import axios from "axios";
 import { useAuthStore } from "@/store/authStore";
-//import FormSpk from "@/views/ph_operator/FormSpk.vue";
+import ModalApp from "@/views/ModalApp.vue";
+import FormSpk from "@/views/wh_operator/FormSpk.vue";
 
 export default {
   name: "RiwayatSPK",
+  components: {
+    ModalApp,
+    FormSpk,
+  },
   data() {
     return {
-      spk: [], 
-      //FormSpk,
+      spk: [],
+      showForm: false,
+      selectedSpk: null,
     };
   },
   methods: {
-    // Fetch data karyawan berdasarkan userId
-    async fetchUserDetails(userId) {
-      try {
-        const response = await axios.get(`http://localhost:3000/api/user/${userId}`, {
-          headers: {
-            Authorization: `Bearer ${useAuthStore().token}`,
-          },
-        });
-        return response.data.username || "Unknown User";
-      } catch {
-        return "Unknown User";
-      }
-    },
-
-    // Fetch data barang berdasarkan materialId
-    async fetchMaterialDetails(materialId) {
-      try {
-        const response = await axios.get(`http://localhost:3000/api/materials/${materialId}`, {
-          headers: {
-            Authorization: `Bearer ${useAuthStore().token}`,
-          },
-        });
-        return response.data.name || "N/A";
-      } catch {
-        return "N/A";
-      }
-    },
-
-    // Fetch data SPK dan lengkapi data nama karyawan dan barang
     async fetchMaterials() {
       const authStore = useAuthStore();
       if (!authStore.token) {
@@ -146,32 +111,50 @@ export default {
       }
     },
 
-    // Perbarui status SPK menjadi "ON_PROCESS"
-    async acceptSPK(spkId) {
+    async fetchUserDetails(userId) {
       try {
-        const authStore = useAuthStore();
-        const response = await axios.patch(
-          `http://localhost:3000/api/spk/${spkId}/accept`,
-          { status: "ON_PROCESS" },
-          {
-            headers: {
-              Authorization: `Bearer ${authStore.token}`,
-            },
-          }
-        );
-        console.log("SPK diterima:", response.data);
-
-        // Perbarui data di frontend
-        const spkIndex = this.spk.findIndex((spk) => spk.spkId === spkId);
-        if (spkIndex !== -1) {
-          this.spk[spkIndex].status = "ON_PROCESS";
-        }
-      } catch (error) {
-        console.error("Error menerima SPK:", error);
+        const response = await axios.get(`http://localhost:3000/api/user/${userId}`, {
+          headers: {
+            Authorization: `Bearer ${useAuthStore().token}`,
+          },
+        });
+        return response.data.username || "Unknown User";
+      } catch {
+        return "Unknown User";
       }
     },
 
-    // Menentukan kelas CSS berdasarkan status
+    async fetchMaterialDetails(materialId) {
+      try {
+        const response = await axios.get(`http://localhost:3000/api/materials/${materialId}`, {
+          headers: {
+            Authorization: `Bearer ${useAuthStore().token}`,
+          },
+        });
+        return response.data.name || "N/A";
+      } catch {
+        return "N/A";
+      }
+    },
+
+    openModal(history) {
+      // Menampilkan modal dengan data yang dipilih
+      this.selectedSpk = history;
+      this.showForm = true;
+    },
+
+    closeForm() {
+      // Menutup modal dan reset data
+      this.showForm = false;
+      this.selectedSpk = null;
+    },
+
+    handleSubmit(updatedData) {
+      console.log("Data yang diterima dari FormSpk:", updatedData);
+      this.closeForm();
+      // Anda dapat menambahkan logika untuk memperbarui data lokal di sini
+    },
+
     getStatusClass(status) {
       switch (status) {
         case "DONE":

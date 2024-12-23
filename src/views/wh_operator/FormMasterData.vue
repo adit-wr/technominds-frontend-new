@@ -147,7 +147,7 @@ export default {
         if (this.isEdit) {
           // PUT request untuk edit data
           await axios.put(
-            `http://localhost:3000/api/materials/${this.form.materialId}`, // Perbaikan di sini
+            `http://localhost:3000/api/materials/${this.form.materialId}`, 
             this.form,
             { headers: { Authorization: `Bearer ${token}` } }
           );

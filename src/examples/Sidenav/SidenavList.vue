@@ -131,7 +131,7 @@ const getRoute = () => route.name;
             <sidenav-item
               to="/ph-operator/user-data"
               :class="getRoute() === 'ph-operator/user-data' ? 'active' : ''"
-              navText="Data Warehouse"
+              navText="Profile Karyawan"
             >
               <template v-slot:icon
                 ><i class="bi bi-person-circle text-info text-sm opacity-10"></i

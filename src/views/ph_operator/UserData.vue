@@ -1,191 +1,197 @@
 <script setup>
-import { ref, reactive, onMounted } from "vue";
-import axios from "axios";
-import { useAuthStore } from "@/store/authStore";
-//import FormUserData from "@/views/ph_operator/FormUserData.vue";
+import { ref, onMounted } from 'vue';
+import axios from 'axios';
+import { useUserStore } from '@/store/userStore';
 
-const users = ref([]);
-const isLoading = ref(false);
-const selectedUser = reactive({
-  userId: "",
-  username: "",
-  email: "",
-  role: "",
-  status: "",
+// Ambil instance store untuk user
+const userStore = useUserStore();
+
+// Variabel untuk menyimpan data user
+const user = ref({
+  username: '',
+  email: '',
+  status: '',
 });
-const isEdit = ref(false);
 
-// Fetch users only once when the component is mounted
-function fetchUsers() {
-  isLoading.value = true;
-  const authStore = useAuthStore();
+// Variabel untuk menyimpan status yang baru dipilih
+const newStatus = ref('FREE');
 
-  axios
-    .get("http://localhost:3000/api/user", {
-      headers: {
-        Authorization: `Bearer ${authStore.token}`,
-      },
-    })
-    .then((response) => {
-      users.value = response.data.filter((user) => user.role === "WH_OPERATOR");
-    })
-    .catch((error) => {
-      console.error("Error fetching users:", error);
-    })
-    .finally(() => {
-      isLoading.value = false;
-    });
-}
-
-// Handle Submit (update or add user)
-async function handleSubmit(user) {
-  const authStore = useAuthStore();
-  isLoading.value = true;
-
+// Fungsi untuk mengambil data pengguna berdasarkan login
+const fetchUserData = async () => {
   try {
-    if (isEdit.value) {
-      await axios.put(`http://localhost:3000/api/user/${user.userId}`, user, {
-        headers: { Authorization: `Bearer ${authStore.token}` },
-      });
-    } else {
-      alert("Tidak ada fitur untuk menambah user.");
-    }
+    const userId = userStore.userId;
+    const token = userStore.token;
 
-    alert(
-      isEdit.value ? "Data berhasil diperbarui!" : "Tidak ada perubahan data."
-    );
+    // Kirim token dalam header Authorization
+    const response = await axios.get(`http://localhost:3000/api/user/${userId}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      }
+    });
+
+    const data = response.data;
+
+    // Simpan data pengguna ke variabel `user`
+    user.value = {
+      username: data.username,
+      email: data.email,
+      status: data.status,
+    };
   } catch (error) {
-    console.error("Error saving user:", error);
-    alert("Terjadi kesalahan saat menyimpan data.");
-  } finally {
-    isLoading.value = false;
+    console.error('Error fetching user data:', error);
   }
-}
+};
 
-// Edit user data
-function editUser(user) {
-  Object.assign(selectedUser, user);
-  isEdit.value = true;
-}
+// Fungsi untuk mengupdate status
+const updateStatus = async () => {
+  try {
+    const userId = userStore.userId;
+    const token = userStore.token;
 
-// Close the form
-function closeForm() {
-  isEdit.value = false;
-  Object.assign(selectedUser, {
-    userId: "",
-    username: "",
-    email: "",
-    role: "",
-    status: "",
-  });
-}
+    // Kirim permintaan update status
+    // eslint-disable-next-line
+    const response = await axios.put(
+      `http://localhost:3000/api/user/${userId}`,
+      { status: newStatus.value },
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      }
+    );
 
+    // Perbarui status pengguna setelah berhasil
+    user.value.status = newStatus.value;
+  } catch (error) {
+    console.error('Error updating status:', error);
+  }
+};
+
+// Memanggil API untuk mengambil data saat komponen dimuat
 onMounted(() => {
-  fetchUsers();
+  fetchUserData();
 });
 </script>
 
 <template>
-  <div class="master-data-container">
-    <div class="card shadow-sm rounded-lg">
-      <div class="card-header text-white p-4 d-flex justify-content-between align-items-center">
-        <h2 class="text-xl font-weight-bold mb-0">User Data</h2>
+  <main>
+    <div class="container-fluid">
+      <!-- Header -->
+      <div class="page-header min-height-300" style="background-image: url('https://images.unsplash.com/photo-1531512073830-ba890ca4eba2?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80'); margin-right: -24px; margin-left: -34%;">
+        <span class="mask bg-gradient-success opacity-6"></span>
       </div>
 
-      <div class="card-body p-0">
-        <div v-if="isLoading" class="text-center py-4">
-          <span>Loading...</span>
+      <!-- Main Card -->
+      <div class="card shadow-lg mt-n6">
+        <div class="card-body p-3">
+          <div class="row gx-4">
+            <div class="col-auto">
+              <div class="avatar avatar-xl position-relative">
+                <img src="@/assets/img/team-3.jpg" alt="profile_image" class="shadow-sm w-100 border-radius-lg" />
+              </div>
+            </div>
+            <div class="col-auto my-auto">
+              <div class="h-100">
+                <h5 class="mb-1">Warehouse Operator</h5>
+                <p class="mb-0 font-weight-bold text-sm">{{ user.status || 'FREE' }}</p>
+              </div>
+            </div>
+          </div>
+          <!-- Dropdown untuk memilih status -->
+          <div class="mt-3">
+            <select v-model="newStatus" class="form-select">
+              <option value="FREE">FREE</option>
+              <option value="OFF">OFF</option>
+              <option value="ON_DUTY">ON DUTY</option>
+            </select>
+            <button class="btn btn-primary mt-3" @click="updateStatus">Update Status</button>
+          </div>
         </div>
+      </div>
 
-        <div v-else class="table-responsive">
-          <table class="table table-hover mb-0">
-            <thead class="bg-light">
-              <tr>
-                <th class="py-3 px-4 text-muted text-uppercase font-weight-bold">User ID</th>
-                <th class="py-3 px-4 text-muted text-uppercase font-weight-bold">Username</th>
-                <th class="py-3 px-4 text-muted text-uppercase font-weight-bold">Email</th>
-                <th class="py-3 px-4 text-muted text-uppercase font-weight-bold">Role</th>
-                <th class="py-3 px-4 text-muted text-uppercase font-weight-bold">Status</th>
-                <th class="py-3 px-4 text-muted text-uppercase font-weight-bold text-center">Aksi</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="user in users" :key="user.userId">
-                <td class="py-3 px-4 font-weight-bold">{{ user.userId }}</td>
-                <td class="py-3 px-4">{{ user.username }}</td>
-                <td class="py-3 px-4">{{ user.email }}</td>
-                <td class="py-3 px-4">{{ user.role }}</td>
-                <td class="py-3 px-4">{{ user.status }}</td>
-                <td class="py-3 px-4 text-center">
-                  <div class="btn-group" role="group">
-                    <button @click="editUser(user)" class="btn btn-outline-warning btn-sm me-2">
-                      <i class="bi bi-pencil-square"></i> Update Status
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+      <!-- Main Content Row -->
+      <div class="py-4 container-fluid">
+        <div class="row">
+          <!-- WH Operator Information Table -->
+          <div class="col-md-8">
+            <div class="card">
+              <div class="card-header pb-0">
+                <div class="d-flex align-items-center">
+                  <p class="mb-0">WH Operator Information</p>
+                </div>
+              </div>
+              <div class="card-body">
+                <!-- Tabel untuk menampilkan data pengguna -->
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th scope="col"></th>
+                      <th scope="col"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Username</td>
+                      <td>{{ user.username || 'Ilman Irawan' }}</td>
+                    </tr>
+                    <tr>
+                      <td>Email</td>
+                      <td>{{ user.email || 'ilmanirawan01@gmail.com' }}</td>
+                    </tr>
+                    <tr>
+                      <td>Status Kerja</td>
+                      <td>{{ user.status || 'FREE' }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-
-    <!-- Modal Form -->
-    <ModalApp v-model:visible="showForm">
-      <FormUserData
-        :user="selectedUser"
-        :isEdit="isEdit"
-        @submit="handleSubmit"
-        @cancel="closeForm"
-      />
-    </ModalApp>
-  </div>
+  </main>
 </template>
 
 <style scoped>
-.master-data-container {
-  background-color: #f4f6f9;
-  padding: 20px;
+.container-fluid {
+  width: 100%;
 }
 
-.card {
-  border: none;
-  overflow: hidden;
+.card-header p {
+  font-weight: bold;
+  font-size: 1.2rem;
 }
 
-.table-hover tbody tr:hover {
-  background-color: rgba(74, 144, 226, 0.05);
-  transition: background-color 0.2s ease;
+.table th, .table td {
+  vertical-align: middle;
 }
 
-.badge {
-  font-size: 0.8em;
-  padding: 0.4em 0.6em;
+.table {
+  width: 100%;
+  border-collapse: collapse;
 }
 
-.badge.bg-warning {
-  background-color: #ffc107 !important;
+.table th, .table td {
+  padding: 12px;
+  text-align: left;
+  border: 1px solid #ddd;
 }
 
-.btn-group .btn {
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
+.table th {
+  background-color: #f8f9fa;
+  font-weight: bold;
 }
 
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .table-responsive {
-    font-size: 0.9em;
-  }
+.table td {
+  background-color: #ffffff;
+}
 
-  .btn-group {
-    flex-direction: column;
-    gap: 0.5rem;
-  }
+.table tbody tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
 
-  .btn-group .btn {
-    width: 100%;
-  }
+.table tbody tr:hover {
+  background-color: #e9ecef;
 }
 </style>
