@@ -73,7 +73,7 @@ export default {
       materialId: null,
       quantityOrder: 1,
       tanggal_pengajuan:"",
-      penerima: "",
+      penerima: null,
       operators: [], 
     };
   },

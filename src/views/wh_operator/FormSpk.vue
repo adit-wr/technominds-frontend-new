@@ -80,6 +80,7 @@
 <script setup>
 import { ref, watch } from "vue";
 import axios from "axios"; // Pastikan Anda sudah menginstal axios
+import { useAuthStore } from "@/store/authStore"; // Sesuaikan dengan path store Auth Anda
 
 const props = defineProps({
   visible: Boolean,
@@ -107,18 +108,23 @@ const close = () => {
 
 const submitForm = async () => {
   try {
-    // Kirim request untuk memperbarui status ke backend (API)
+    const authStore = useAuthStore(); 
     const response = await axios.patch(
       `http://localhost:3000/api/spk/${localItem.value.spkId}`,
       {
         status: localItem.value.status,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${authStore.token}`, 
+        },
       }
     );
 
     // Jika request sukses, beri respons dan tutup modal
     if (response.status === 200) {
       emit("updateStatus", { ...localItem.value });
-      close(); // Tutup modal setelah update berhasil
+      close(); 
     }
   } catch (error) {
     console.error("Error updating status:", error);
